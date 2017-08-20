@@ -6,7 +6,7 @@ export default class Showcase extends Component {
         return (
             <div className="showcase">
                 <div className="drop-down">
-                    <ReactDropDown />
+                    <ReactDropDown/>
                 </div>
             </div>
         );

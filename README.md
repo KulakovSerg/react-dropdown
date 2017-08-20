@@ -5,14 +5,14 @@ just another interview task
 
 _yarn_
 
-**build for production:**
+**production build:**
 
-_build_
+_yarn build_
 
 uglify, separate css file.
 Build is available by local absolute path in ./dist directory
 
-**build:**
+**dev build:**
 
 _yarn build-dev_
 
