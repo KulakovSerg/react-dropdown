@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import Showcase from './Showcase.jsx';
+import friends from "../../api/friends.json";
 
 render(React.createElement(Showcase), document.querySelector('.content'));
 
@@ -9,3 +10,5 @@ if (module.hot) {
         render(React.createElement(Showcase), document.querySelector('.content'));
     });
 }
+
+window._friends = friends;

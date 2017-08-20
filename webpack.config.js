@@ -3,6 +3,8 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
+const fse = require('fs-extra');
+const WebpackOnBuildPlugin = require('on-build-webpack');
 
 const PROD = process.env.NODE_ENV === 'production';
 const SOURCE_MAP = !PROD ? '?sourceMap' : '';
@@ -34,6 +36,13 @@ const plugins = [
         alwaysWriteToDisk: true,
     }),
     new HtmlWebpackHarddiskPlugin(),
+    new WebpackOnBuildPlugin(()=> {
+        fse.copy('./api/', './dist/api', function (err) {
+            if (err) {
+                throw err;
+            }
+        });
+    }),
 ];
 if (PROD) {
     plugins.push(
