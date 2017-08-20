@@ -22,7 +22,6 @@ config.plugins.push(
 config.devServer = {
     hot: true,
     contentBase: path.join(__dirname, 'dist'),
-    port: 9000,
     overlay: {
         warnings: true,
         errors: true,
