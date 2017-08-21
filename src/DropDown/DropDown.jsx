@@ -4,15 +4,13 @@ import PropTypes from 'prop-types';
 import searchCache from 'SearchCache/SearchCache';
 
 export default class ReactDropdown extends Component {
-    static defaultProps = {
-    }
-    static propTypes = {
-    }
-    state = {
-        value: '',
+    static defaultProps = {}
+    static propTypes = {}
+    state={
+        searchString: '',
         items: [],
     }
-    onSearch(searchString){
+    handleSearch(searchString){
         this.setState(() => {
             return {
                 searchString,
@@ -43,10 +41,12 @@ export default class ReactDropdown extends Component {
                 </span>
             );
         }
-        const lowerText = text.toLowerCase();
-        const searchWithCase = text.substr(lowerText.indexOf(searchString), searchString.length);
-        const html = text.split(searchWithCase);
-        html.splice(1, 0, <em className="text_found" key="em">{searchWithCase}</em>);
+        const variants = searchCache.getTextVariants(text.toLowerCase());
+        const variant = variants.filter(variant => variant.indexOf(searchString) !== -1)[0];
+        const idx = variant.indexOf(searchString) === 0 ? 0 : variant.indexOf(' ' + searchString) + 1;
+        const selectedText = text.substr(idx, searchString.length);
+        const html = text.split(selectedText);
+        html.splice(1, 0, <em className="text_found" key="em">{selectedText}</em>);
         return (
             <span>
                 {html}
@@ -56,19 +56,21 @@ export default class ReactDropdown extends Component {
     render() {
         return (
             <div className="drop-down">
-                <input
-                    value={this.state.searchString}
-                    onChange={event => {
-                        this.onSearch(event.target.value);
-                    }}
-                />
+                <form>
+                    <input
+                        type="text"
+                        name="search"
+                        value={this.state.searchString}
+                        onChange={event => this.handleSearch(event.target.value) }
+                    />
+                </form>
                 {
                     this.state.items ?
                     <ul>
                         {
                             this.state.items.map((item, num) => (
                                 <li key={num}>
-                                    {this.prepareText(item[0])}
+                                    {this.prepareText(item.fullName)}
                                 </li>
                             ))
                         }
