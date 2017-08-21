@@ -1,12 +1,27 @@
 .drop-down{
-  // background: #507299;
   background: #305075;
   color: #d9e2ec;
   border-radius: 14px;
   padding: 6px 8px;
   display: inline-block;
-}
 
-.text_found{
-  background: yellow;
+  &__item {
+    color: #42648b;
+    background: white;
+    list-style: none;
+    padding: 15px 10px;
+    &:hover{
+      background: #f0f2f5;
+    }
+  }
+
+  &__found-text {
+    background: #e7edf2;
+    font-style: normal;
+  }
+
+  &__item-container {
+    background: white;
+    padding: 0;
+  }
 }

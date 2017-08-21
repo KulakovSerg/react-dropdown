@@ -46,7 +46,7 @@ export default class ReactDropdown extends Component {
         const idx = variant.indexOf(searchString) === 0 ? 0 : variant.indexOf(' ' + searchString) + 1;
         const selectedText = text.substr(idx, searchString.length);
         const html = text.split(selectedText);
-        html.splice(1, 0, <em className="text_found" key="em">{selectedText}</em>);
+        html.splice(1, 0, <em className="drop-down__found-text" key="em">{selectedText}</em>);
         return (
             <span>
                 {html}
@@ -66,10 +66,13 @@ export default class ReactDropdown extends Component {
                 </form>
                 {
                     this.state.items ?
-                    <ul>
+                    <ul className="drop-down__item-container">
                         {
                             this.state.items.map((item, num) => (
-                                <li key={num}>
+                                <li
+                                    className="drop-down__item"
+                                    key={num}
+                                >
                                     {this.prepareText(item.fullName)}
                                 </li>
                             ))
