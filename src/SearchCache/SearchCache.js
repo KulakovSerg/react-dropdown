@@ -83,7 +83,7 @@ const CYR2TRANS = {
     'э': 'e',
     'ю': 'iu',
     'я': 'ia',
-}
+};
 
 const TRANS2CYR = reverseObj(CYR2TRANS);
 
@@ -99,7 +99,7 @@ export class SearchCache {
     callbacks = [];
     cache = {
         items: [],
-    }
+    };
     variantsCache = {};
 
     // комменты для jsdoc должны быть англицйские на всякий случай, но по коду тольео для
@@ -137,6 +137,7 @@ export class SearchCache {
      * @returns {Array}
      */
     search(text) {
+        // TODO глюк при поиске по транслиту: имя начинается на s а фамилия на sh - выдача дублируется
         if(text){
             text = text.toLowerCase();
             let node = this.cache;

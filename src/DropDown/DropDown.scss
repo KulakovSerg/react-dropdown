@@ -4,8 +4,9 @@ $itemHeight: 40px;
   background: #305075;
   color: #d9e2ec;
   border-radius: 14px;
-  padding: 6px 8px;
+  padding: 10px 8px;
   display: inline-block;
+  position: relative;
 
   &__item {
     color: #42648b;
@@ -38,5 +39,14 @@ $itemHeight: 40px;
     vertical-align: middle;
     line-height: $itemHeight;
     padding-left: 10px;
+  }
+
+  &__input {
+    border-radius: 15px;
+    border: 0;
+    padding: 5px 10px;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
