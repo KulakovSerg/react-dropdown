@@ -100,6 +100,7 @@ export class SearchCache {
     cache = {
         items: [],
     }
+    variantsCache = {};
 
     // комменты для jsdoc должны быть англицйские на всякий случай, но по коду тольео для
     // тестового задания пришу на русском
@@ -165,6 +166,9 @@ export class SearchCache {
      * @param text
      */
     getTextVariants(text){
+        if(this.variantsCache[text]){
+            return this.variantsCache[text];
+        }
         const trans = this._cyr2trans(text);
         // из-за полностью английских имен приходится делать больше вариантов,
         // которые могут повторяться
@@ -182,6 +186,7 @@ export class SearchCache {
                 uniqueVariants.push(variant);
             }
         });
+        this.variantsCache[text] = uniqueVariants;
         return uniqueVariants;
     }
 
