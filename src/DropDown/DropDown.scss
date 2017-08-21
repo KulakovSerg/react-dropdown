@@ -1,4 +1,6 @@
-.drop-down{
+$itemHeight: 40px;
+
+.drop-down {
   background: #305075;
   color: #d9e2ec;
   border-radius: 14px;
@@ -9,7 +11,7 @@
     color: #42648b;
     background: white;
     list-style: none;
-    padding: 15px 10px;
+    padding: 5px 15px;
     &:hover{
       background: #f0f2f5;
     }
@@ -23,5 +25,18 @@
   &__item-container {
     background: white;
     padding: 0;
+  }
+
+  &__avatar {
+    width: $itemHeight;
+    float: left;
+    border-radius: $itemHeight / 2;
+  }
+
+  &__item-text {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: $itemHeight;
+    padding-left: 10px;
   }
 }

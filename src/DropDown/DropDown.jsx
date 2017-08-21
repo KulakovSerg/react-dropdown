@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import searchCache from 'SearchCache/SearchCache';
 
 export default class ReactDropdown extends Component {
-    static defaultProps = {}
-    static propTypes = {}
+    static defaultProps = {};
+    static propTypes = {};
     state={
         searchString: '',
         items: [],
-    }
+    };
     handleSearch(searchString){
         this.setState(() => {
             return {
@@ -34,22 +34,18 @@ export default class ReactDropdown extends Component {
     }
     prepareText(text){
         const searchString = this.state.searchString;
-        if(!searchString){
-            return (
-                <span>
-                    {text}
-                </span>
-            );
+        let html;
+        if(searchString){
+            const variants = searchCache.getTextVariants(text.toLowerCase());
+            const variant = variants.filter(variant => variant.indexOf(searchString) !== -1)[0];
+            const idx = variant.indexOf(searchString) === 0 ? 0 : variant.indexOf(' ' + searchString) + 1;
+            const selectedText = text.substr(idx, searchString.length);
+            html = text.split(selectedText);
+            html.splice(1, 0, <em className="drop-down__found-text" key="em">{selectedText}</em>);
         }
-        const variants = searchCache.getTextVariants(text.toLowerCase());
-        const variant = variants.filter(variant => variant.indexOf(searchString) !== -1)[0];
-        const idx = variant.indexOf(searchString) === 0 ? 0 : variant.indexOf(' ' + searchString) + 1;
-        const selectedText = text.substr(idx, searchString.length);
-        const html = text.split(selectedText);
-        html.splice(1, 0, <em className="drop-down__found-text" key="em">{selectedText}</em>);
         return (
-            <span>
-                {html}
+            <span className="drop-down__item-text">
+                {html || text}
             </span>
         )
     }
@@ -73,6 +69,10 @@ export default class ReactDropdown extends Component {
                                     className="drop-down__item"
                                     key={num}
                                 >
+                                    <img
+                                        className="drop-down__avatar"
+                                        src={item.avatar}
+                                    />
                                     {this.prepareText(item.fullName)}
                                 </li>
                             ))
