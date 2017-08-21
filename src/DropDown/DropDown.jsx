@@ -60,12 +60,17 @@ export default class ReactDropdown extends Component {
     render() {
         return (
             <div className="drop-down">
+                {
+                    // TODO инпут полностью в десинке с android-кливиатурой, впервые такое вижу.
+                    // Отдельный компонент input со своим state и shouldComponentUpdate() => false ?
+                }
                 <input
                     className="drop-down__input"
                     type="text"
                     name="search"
                     value={this.state.searchString}
                     onChange={event => this.handleSearch(event.target.value)}
+                    autoComplete="off"
                 />
                 {
                     this.state.items ?
