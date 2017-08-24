@@ -13,10 +13,16 @@
       "error",
       4
     ],
+    "react/jsx-indent-props": [
+      "error",
+      4
+    ],
     "react/prefer-stateless-function": "warn",
+    "react/no-array-index-key": "warn",
     "jsx-a11y/href-no-hash": "warn",
     "import/extensions": "warn",
     "import/no-unresolved": "warn",
-    "import/no-extraneous-dependencies": "warn"
+    "import/no-extraneous-dependencies": "warn",
+    "no-underscore-dangle": "warn"
   }
 }

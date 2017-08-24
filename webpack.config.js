@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const fse = require('fs-extra');
 const WebpackOnBuildPlugin = require('on-build-webpack');
+const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 const PROD = process.env.NODE_ENV === 'production';
 const SOURCE_MAP = !PROD ? '?sourceMap' : '';
@@ -36,13 +37,14 @@ const plugins = [
         alwaysWriteToDisk: true,
     }),
     new HtmlWebpackHarddiskPlugin(),
-    new WebpackOnBuildPlugin(()=> {
-        fse.copy('./api/', './dist/api', function (err) {
+    new WebpackOnBuildPlugin(() => {
+        fse.copy('./api/', './dist/api', (err) => {
             if (err) {
                 throw err;
             }
         });
     }),
+    new SpriteLoaderPlugin(),
 ];
 if (PROD) {
     plugins.push(
@@ -98,11 +100,26 @@ module.exports = {
                     use: `css-loader${SOURCE_MAP}!sass-loader${SOURCE_MAP}${SASS_PATHS}`,
                 }),
             },
+            {
+                test: /\.svg$/,
+                use: [
+                    {
+                        loader: 'svg-sprite-loader',
+                        options: {
+                            extract: true,
+                            spriteFilename: 'sprite.svg',
+                        },
+                    },
+                    'svg-fill-loader',
+                    'svgo-loader',
+                ],
+            },
         ],
     },
     stats: {
         children: false,
     },
-    node: PROD ? false : undefined, // TODO remove this condition (make it always false), but error:
+    // node: PROD ? false : undefined, // TODO remove this condition (make it always false), but
+    // error:
     // > browser-crypto.js: Uncaught ReferenceError: global is not defined
 };

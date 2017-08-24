@@ -1,98 +1,98 @@
 const CYR2LAT = {
-    'й': 'q',
-    'ц': 'w',
-    'у': 'e',
-    'к': 'r',
-    'е': 't',
-    'н': 'y',
-    'г': 'u',
-    'ш': 'i',
-    'щ': 'o',
-    'з': 'p',
-    'х': '[',
-    'ъ': ']',
-    'ф': 'a',
-    'ы': 's',
-    'в': 'd',
-    'а': 'f',
-    'п': 'g',
-    'р': 'h',
-    'о': 'j',
-    'л': 'k',
-    'д': 'l',
-    'ж': ';',
-    'э': '\'',
-    'я': 'z',
-    'ч': 'x',
-    'с': 'c',
-    'м': 'v',
-    'и': 'b',
-    'т': 'n',
-    'ь': 'm',
-    'б': ',',
-    'ю': '.',
-    'ё': '`',
+    й: 'q',
+    ц: 'w',
+    у: 'e',
+    к: 'r',
+    е: 't',
+    н: 'y',
+    г: 'u',
+    ш: 'i',
+    щ: 'o',
+    з: 'p',
+    х: '[',
+    ъ: ']',
+    ф: 'a',
+    ы: 's',
+    в: 'd',
+    а: 'f',
+    п: 'g',
+    р: 'h',
+    о: 'j',
+    л: 'k',
+    д: 'l',
+    ж: ';',
+    э: '\'',
+    я: 'z',
+    ч: 'x',
+    с: 'c',
+    м: 'v',
+    и: 'b',
+    т: 'n',
+    ь: 'm',
+    б: ',',
+    ю: '.',
+    ё: '`',
 };
 
 // для более финальной реализации надо добавить в список еще спецсимволы и все то, что по шифту
 // + из других языков
 
 function reverseObj(source) {
-    return Object.keys(source).reduce((result,key) => {
-        if(source[key].length === 1){
+    return Object.keys(source).reduce((result, key) => {
+        if (source[key].length === 1) {
             result[source[key]] = key;
         }
         return result;
-    },{});
+    }, {});
 }
 
 const LAT2CYR = reverseObj(CYR2LAT);
 
 // Passport (2013), ICAO
 const CYR2TRANS = {
-    'а': 'a',
-    'б': 'b',
-    'в': 'v',
-    'г': 'g',
-    'д': 'd',
-    'е': 'e',
-    'ё': 'e',
-    'ж': 'zh',
-    'з': 'z',
-    'й': 'i',
-    'и': 'i',
-    'к': 'k',
-    'л': 'l',
-    'м': 'm',
-    'н': 'n',
-    'о': 'o',
-    'п': 'p',
-    'р': 'r',
-    'с': 's',
-    'т': 't',
-    'у': 'u',
-    'ф': 'f',
-    'х': 'kh',
-    'ц': 'ts',
-    'щ': 'shch',
-    'ч': 'ch',
-    'ш': 'sh',
-    'ъ': 'ie',
-    'ы': 'y',
-    'ь': '\'',
-    'э': 'e',
-    'ю': 'iu',
-    'я': 'ia',
+    а: 'a',
+    б: 'b',
+    в: 'v',
+    г: 'g',
+    д: 'd',
+    е: 'e',
+    ё: 'e',
+    ж: 'zh',
+    з: 'z',
+    й: 'i',
+    и: 'i',
+    к: 'k',
+    л: 'l',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'p',
+    р: 'r',
+    с: 's',
+    т: 't',
+    у: 'u',
+    ф: 'f',
+    х: 'kh',
+    ц: 'ts',
+    щ: 'shch',
+    ч: 'ch',
+    ш: 'sh',
+    ъ: 'ie',
+    ы: 'y',
+    ь: '\'',
+    э: 'e',
+    ю: 'iu',
+    я: 'ia',
 };
 
 const TRANS2CYR = reverseObj(CYR2TRANS);
 
-const TRANS2CYR_LONG = Object.keys(CYR2TRANS).reduce((result,key) => {
-    if(CYR2TRANS[key].length > 1){
+const TRANS2CYR_LONG = Object.keys(CYR2TRANS).reduce((result, key) => {
+    if (CYR2TRANS[key].length > 1) {
         result[CYR2TRANS[key]] = key;
     }
     return result;
-},{});
+}, {});
 
 export class SearchCache {
     loadedData = [];
@@ -113,17 +113,17 @@ export class SearchCache {
      * имеет смысл сохранять адрес запроса и повторно его не слать, но про транспорт
      * в задании не было
      */
-    addData(data){
+    addData(data) {
         let newDataLength;
         const newData = Object.keys(data).reduce((result, key) => {
-            if(!this.loadedData[key]){
+            if (!this.loadedData[key]) {
                 result[key] = this._parse(data[key], key);
                 this.loadedData[key] = result[key];
                 newDataLength = true;
             }
             return result;
         }, {});
-        if(newDataLength) {
+        if (newDataLength) {
             // чтобы меньше тормозило пока все считается выкидываю в конец очереди - после рендера
             setTimeout(() => {
                 this._data2hash(newData);
@@ -138,27 +138,26 @@ export class SearchCache {
      */
     search(text) {
         // TODO глюк при поиске по транслиту: имя начинается на s а фамилия на sh - выдача дублируется
-        if(text){
+        if (text) {
             text = text.toLowerCase();
             let node = this.cache;
-            while(text){
+            while (text) {
                 node = node[text[0]];
-                if(!node){
+                if (!node) {
                     break;
                 }
                 text = text.substring(1);
             }
             return node ? node.items : [];
-        } else {
-            return this.cache.items;
         }
+        return this.cache.items;
     }
 
     /**
      * add cache finished callback
      * @param callback
      */
-    onCached(callback){
+    onCached(callback) {
         this.callbacks.push(callback);
     }
 
@@ -166,8 +165,8 @@ export class SearchCache {
      * returns all variants of text typing
      * @param text
      */
-    getTextVariants(text){
-        if(this.variantsCache[text]){
+    getTextVariants(text) {
+        if (this.variantsCache[text]) {
             return this.variantsCache[text];
         }
         const trans = this._cyr2trans(text);
@@ -182,8 +181,8 @@ export class SearchCache {
             this._trans2cyr(text),
         ];
         const uniqueVariants = [];
-        variants.forEach(variant => {
-            if(uniqueVariants.indexOf(variant) === -1){
+        variants.forEach((variant) => {
+            if (uniqueVariants.indexOf(variant) === -1) {
                 uniqueVariants.push(variant);
             }
         });
@@ -202,15 +201,15 @@ export class SearchCache {
      * @param id
      * @returns {{id: *, fullName: *, avatar: *, pageName: *, group: *, city: *}}
      */
-    _parse([fullName, avatar, pageName, group, city], id){
+    _parse([fullName, avatar, pageName, group, study], id) {
         return {
             id,
             fullName,
             avatar,
             pageName,
             group,
-            city,
-        }
+            study,
+        };
     }
 
     /**
@@ -218,10 +217,10 @@ export class SearchCache {
      * @private
      * @param data
      */
-    _data2hash(data){
+    _data2hash(data) {
         let text;
         let item;
-        Object.keys(data).forEach(key => {
+        Object.keys(data).forEach((key) => {
             item = data[key];
             text = item.fullName.toLowerCase();
             this._addCacheVariants(text, item);
@@ -237,7 +236,7 @@ export class SearchCache {
      * save item for empty search request output
      * @param link
      */
-    _addInitialSearch(link){
+    _addInitialSearch(link) {
         this.cache.items.push(link);
     }
 
@@ -251,7 +250,9 @@ export class SearchCache {
         const words = text.split(' ').filter(item => item);
         // со 2 слова, первое и так добавится
         words.forEach((word, num) => {
-            num && this._addCacheVariants(word, link)
+            if (num) {
+                this._addCacheVariants(word, link);
+            }
         });
     }
 
@@ -261,8 +262,8 @@ export class SearchCache {
      * @param text
      * @param link
      */
-    _addCacheVariants(text, link){
-        this.getTextVariants(text).forEach(variant => {
+    _addCacheVariants(text, link) {
+        this.getTextVariants(text).forEach((variant) => {
             this._addCache(variant, link);
         });
     }
@@ -277,14 +278,14 @@ export class SearchCache {
         // рекурсии - зло, цикл дешевле
         let node = this.cache;
         let letter;
-        while(text){
+        while (text) {
             letter = text[0];
-            if(!node[letter]){
+            if (!node[letter]) {
                 node[letter] = {
                     items: [
                         link,
                     ],
-                }
+                };
             } else {
                 node[letter].items.push(link);
             }
@@ -300,10 +301,10 @@ export class SearchCache {
      * @param transformer
      * @returns {string}
      */
-    _transformText(text, transformer){
+    _transformText(text, transformer) {
         let result = '';
-        for(let i = 0; i<text.length; i++){
-            result+=transformer[text[i]] || text[i];
+        for (let i = 0; i < text.length; i++) {
+            result += transformer[text[i]] || text[i];
         }
         return result;
     }
@@ -345,7 +346,7 @@ export class SearchCache {
      * @returns {string}
      */
     _trans2cyr(text) {
-        Object.keys(TRANS2CYR_LONG).forEach(key => {
+        Object.keys(TRANS2CYR_LONG).forEach((key) => {
             text = text.replace(key, TRANS2CYR_LONG[key]);
         });
         return this._transformText(text, TRANS2CYR);
