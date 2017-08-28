@@ -39,13 +39,15 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.2.1",
+    "react-docgen": "^2.17.0",
     "webpack-dev-server": "^2.7.1"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "build-dev": "webpack --devtool eval-source-map",
     "start": "webpack-dev-server --watch-poll --devtool eval-source-map --config webpack.devserver.config",
-    "start-pure": "webpack --devtool eval-source-map --watch"
+    "start-pure": "webpack --devtool eval-source-map --watch",
+    "doc": "node ./node_modules/react-docgen/bin/react-docgen.js ./src/DropDownSearch ./src/DropDown -o ./doc/react-docgen.json --pretty"
   },
   "repository": {
     "type": "git",

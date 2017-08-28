@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
-import ReactDropDown from 'DropDown/DropDown.jsx';
+import DropDownSearch from 'DropDownSearch/DropDownSearch.jsx';
 import './Showcase.scss';
 
 export default class Showcase extends Component {
     render() {
         return (
             <div className="showcase">
-                <ReactDropDown />
+                <DropDownSearch
+                    multiselect
+                    autocomplete
+                    avatars
+                />
             </div>
         );
     }

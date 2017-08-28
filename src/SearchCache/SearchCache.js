@@ -125,7 +125,10 @@ export class SearchCache {
             }
             if (variant) {
                 searchPosition = getIndexOfWordBeginning(variant, searchString);
-                variantLength = detransliterate(searchString, variantIdx - 2).length;
+                // TODO кажется есть проблемы с подствекой "кщпщ" и "she" - частичная транслитерация
+                // Можно быстро решить путем хранения в индексе строки для выделения, но тогда он ОЧЕНЬ сильно вздуется
+                // а пока что тут костыль, который решает проблему только для русской транслитерации
+                variantLength = Math.min(detransliterate(searchString, variantIdx - 2).length, searchString.length);
             }
         } else {
             variantLength = searchString.length;
