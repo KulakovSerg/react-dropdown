@@ -120,6 +120,5 @@ module.exports = {
         children: false,
     },
     // node: PROD ? false : undefined, // TODO remove this condition (make it always false), but
-    // error:
-    // > browser-crypto.js: Uncaught ReferenceError: global is not defined
+    // error: "browser-crypto.js: Uncaught ReferenceError: global is not defined"
 };

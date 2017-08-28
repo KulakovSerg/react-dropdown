@@ -23,6 +23,13 @@
     "import/extensions": "warn",
     "import/no-unresolved": "warn",
     "import/no-extraneous-dependencies": "warn",
-    "no-underscore-dangle": "warn"
+    "no-underscore-dangle": "warn",
+    "no-param-reassign": "warn",
+    "no-plusplus": "warn",
+    "class-methods-use-this": "warn",
+    "max-len": [
+      "error",
+      120
+    ]
   }
 }

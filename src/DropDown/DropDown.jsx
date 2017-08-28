@@ -7,55 +7,40 @@ import './DropDown.scss';
 
 export default class ReactDropdown extends Component {
     static defaultProps = {
-        autoHeight: 400,
-        autoHeightMax: 0,
+        autoHeight: true,
+        autoHeightMax: 400,
     };
     static propTypes = {
-        autoHeight: PropTypes.number,
+        autoHeight: PropTypes.bool,
         autoHeightMax: PropTypes.number,
     };
     state={
         searchString: '',
         items: [],
     };
-    // componentDidMount() {
-    //     if (searchCache.isCached) {
-    //         this.setInitialItems();
-    //     } else {
-    //         searchCache.onCached(() => {
-    //             this.setInitialItems();
-    //         });
-    //     }
-    // }
-    // setInitialItems() {
-    //     this.setState(() => ({
-    //         items: searchCache.search(),
-    //     }));
-    // }
     handleSearch(searchString) {
         this.setState(() => ({
             searchString,
             items: searchCache.search(searchString),
         }));
     }
-    prepareText(text) {
-        const searchString = this.state.searchString;
+    prepareText(text, id) {
+        const searchString = this.state.searchString.toLowerCase();
         let html;
         if (searchString) {
-            const variants = searchCache.getTextVariants(text.toLowerCase());
-            const variant = variants.filter(item => item.indexOf(searchString) !== -1)[0];
-            const idx = variant.indexOf(searchString) === 0 ? 0 : variant.indexOf(` ${searchString}`) + 1;
-            const selectedText = text.substr(idx, searchString.length);
-            html = text.split(selectedText);
-            // TODO когда транслитное значение длиннее исходного текста, то неверная подсветка
-            html.splice(1, 0, (
-                <em
-                    className="drop-down__found-text"
-                    key="em"
-                >
-                    {selectedText}
-                </em>
-            ));
+            const { variantLength, searchPosition } = searchCache.getTextSearchPosition(searchString, id);
+            if (variantLength) {
+                const selectedText = text.substr(searchPosition, variantLength);
+                html = text.split(selectedText);
+                html.splice(1, 0, (
+                    <em
+                        className="drop-down__found-text"
+                        key="em"
+                    >
+                        {selectedText}
+                    </em>
+                ));
+            }
         }
         return html || text;
     }
@@ -114,7 +99,7 @@ export default class ReactDropdown extends Component {
                                             alt=""
                                         />
                                         <div className="drop-down__item-header">
-                                            {this.prepareText(item.fullName)}
+                                            {this.prepareText(item.fullName, item.id)}
                                         </div>
                                         <div className="drop-down__item-text">
                                             {item.study}

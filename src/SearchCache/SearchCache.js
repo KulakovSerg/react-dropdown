@@ -1,207 +1,150 @@
-const CYR2LAT = {
-    й: 'q',
-    ц: 'w',
-    у: 'e',
-    к: 'r',
-    е: 't',
-    н: 'y',
-    г: 'u',
-    ш: 'i',
-    щ: 'o',
-    з: 'p',
-    х: '[',
-    ъ: ']',
-    ф: 'a',
-    ы: 's',
-    в: 'd',
-    а: 'f',
-    п: 'g',
-    р: 'h',
-    о: 'j',
-    л: 'k',
-    д: 'l',
-    ж: ';',
-    э: '\'',
-    я: 'z',
-    ч: 'x',
-    с: 'c',
-    м: 'v',
-    и: 'b',
-    т: 'n',
-    ь: 'm',
-    б: ',',
-    ю: '.',
-    ё: '`',
-};
-
-// для более финальной реализации надо добавить в список еще спецсимволы и все то, что по шифту
-// + из других языков
-
-function reverseObj(source) {
-    return Object.keys(source).reduce((result, key) => {
-        if (source[key].length === 1) {
-            result[source[key]] = key;
-        }
-        return result;
-    }, {});
-}
-
-const LAT2CYR = reverseObj(CYR2LAT);
-
-// Passport (2013), ICAO
-const CYR2TRANS = {
-    а: 'a',
-    б: 'b',
-    в: 'v',
-    г: 'g',
-    д: 'd',
-    е: 'e',
-    ё: 'e',
-    ж: 'zh',
-    з: 'z',
-    й: 'i',
-    и: 'i',
-    к: 'k',
-    л: 'l',
-    м: 'm',
-    н: 'n',
-    о: 'o',
-    п: 'p',
-    р: 'r',
-    с: 's',
-    т: 't',
-    у: 'u',
-    ф: 'f',
-    х: 'kh',
-    ц: 'ts',
-    щ: 'shch',
-    ч: 'ch',
-    ш: 'sh',
-    ъ: 'ie',
-    ы: 'y',
-    ь: '\'',
-    э: 'e',
-    ю: 'iu',
-    я: 'ia',
-};
-
-const TRANS2CYR = reverseObj(CYR2TRANS);
-
-const TRANS2CYR_LONG = Object.keys(CYR2TRANS).reduce((result, key) => {
-    if (CYR2TRANS[key].length > 1) {
-        result[CYR2TRANS[key]] = key;
-    }
-    return result;
-}, {});
+import { TRANSLITERATORS, cutFirstWord, getIndexOfWordBeginning, detransliterate } from 'util/util.js';
 
 export class SearchCache {
-    loadedData = [];
-    callbacks = [];
-    cache = {
+    index = {
         items: [],
     };
-    variantsCache = {};
+    translitCache = {};
 
-    // комменты для jsdoc должны быть англицйские на всякий случай, но по коду тольео для
-    // тестового задания пришу на русском
+    // комменты для jsdoc пишу на своем рунглише на всякий случай,
+    // но только для тестового задания - проясенния по коду на русском "почему именно так сделал"
     /**
      * inserts search data
-     * @param data
-     */
-    /*
-     * при поиске vk запросы на сервер уходят постоянно и данные могут дублироваться
-     * имеет смысл сохранять адрес запроса и повторно его не слать, но про транспорт
-     * в задании не было
+     * @param {Object} data
      */
     addData(data) {
-        let newDataLength;
-        const newData = Object.keys(data).reduce((result, key) => {
-            if (!this.loadedData[key]) {
-                result[key] = this._parse(data[key], key);
-                this.loadedData[key] = result[key];
-                newDataLength = true;
+        // в предыдущих пулреквестах код был покрасивее
+        // но место нагруженное и я решил немного оптимизировать
+        // поэтому точка входа такая с вложенными циклами
+        setTimeout(() => {
+            let link;
+            let lowerText;
+            // циклы for..in или что-то более оптимальное по помяти eslint рекомендует заменить на такую запись
+            Object.keys(data).forEach((key) => {
+                link = this.parse(data[key], key);
+                this.index.items.push(link);
+                lowerText = link.fullName.toLowerCase();
+                // сразу добавляем в индекс нетранслитерированные имена и входящие в них слова
+                this.addCacheWords(lowerText, link, lowerText);
+                // чтобы не проверить лишний раз внутри функции передаю тут текст дважды,
+                // во всех других ее вызовах текст разный
+                this.translitCache[key] = [lowerText];
+            });
+            // тут такие циклы вместо foreach чтобы не плодить скоупы лишние
+            for (let i = 0, transText, transliterator; i < TRANSLITERATORS.length; i++) {
+                transliterator = TRANSLITERATORS[i];
+                // чтобы сохранить ранжирование транслитерированных значений приходится делать вложенный цикл по
+                // вариантам транслитерации
+                for (let j = 0; j < this.index.items.length; j++) {
+                    link = this.index.items[j];
+                    lowerText = link.fullName.toLowerCase();
+                    transText = transliterator(lowerText);
+                    // this.translitCache - чтобы не добавлялся повторяющийся текст в index, например одинаковая
+                    // транслитерация, которая случается на полностью английских словах
+                    // этот же кеш потом используется для подсветки найденной подстроки
+                    // Данную проверку можно ускорить, если вместо Array и indexOf использовать Map где link в качетсве
+                    // ключей
+                    if (this.translitCache[link.id].indexOf(transText) === -1) {
+                        // транслитерированные имена и слова из них добавляются в индекс
+                        // порядок ранжирования будет соответствовать порядку транслитеров
+                        this.addCacheWords(lowerText, link, transText, transliterator);
+                    }
+                    // добавляю кеш и для повторов, чтобы потом при подсветке найденной подстроки точно определить номер
+                    // алгоритма транслитерации
+                    this.translitCache[link.id].push(transText);
+                }
             }
-            return result;
-        }, {});
-        if (newDataLength) {
-            // чтобы меньше тормозило пока все считается выкидываю в конец очереди - после рендера
-            setTimeout(() => {
-                this._data2hash(newData);
-            }, 0); // в зависимости от браузера вместо 0 будет 5 или 10
-        }
+        });
+
+        // изначально вариант транслитерации был только 1 и весь алгоритм расчитан на то, что добавляемые в индекс
+        // варианты слов не имеют повторяющихся частей. Когда вариантов транслита стало 4, появилось множество
+        // повторяющихся частей, поэтому в целях ускорения постороения индекса логично было бы не добавлять их целиком,
+        // а делать ветвление в момент расхождения способов транслитерации. Но это излишне усложнит весь алгоритм
+
+        // если бы я не усложнил себе задачу подсветкой найденной подстроки, то алгоритм был бы другим, написание и
+        // проверка кода заняли бы в гораздо меньше времени
     }
 
     /**
      * search by words
-     * @param text
+     * @param {string} text
      * @returns {Array}
      */
     search(text) {
-        // TODO глюк при поиске по транслиту: имя начинается на s а фамилия на sh - выдача дублируется
         if (text) {
             text = text.toLowerCase();
-            let node = this.cache;
-            while (text) {
-                node = node[text[0]];
+            let node = this.index;
+            for (let i = 0; i < text.length; i++) {
+                node = node[text[i]];
                 if (!node) {
                     break;
                 }
-                text = text.substring(1);
             }
             return node ? node.items : [];
         }
-        return this.cache.items;
+        return this.index.items;
+    }
+    // test:
+    // рого => Андрей Рогозов
+    // hjuj => Андрей Рогозов
+    // rogo => Андрей Рогозов
+    // кщпщ => Андрей Рогозов
+    // sergey => Сергей Щербаков
+    // sergej => Сергей Щербаков
+    // sergejj => Сергей Щербаков
+    // sherb => Сергей Щербаков
+    // shherb => Сергей Щербаков
+    // shch => Сергей Щербаков
+
+    /**
+     * returns all variants of transliterated strings
+     * @param {string} key
+     * @returns string[]
+     */
+    getCachedVariants(key) {
+        return this.translitCache[key];
     }
 
     /**
-     * add cache finished callback
-     * @param callback
+     * returns first position of searchString found in item with given id
+     * @param {string} searchString
+     * @param {string} id
+     * @returns {{variantLength: number, searchPosition: number}}
      */
-    onCached(callback) {
-        this.callbacks.push(callback);
-    }
-
-    /**
-     * returns all variants of text typing
-     * @param text
-     */
-    getTextVariants(text) {
-        if (this.variantsCache[text]) {
-            return this.variantsCache[text];
-        }
-        const trans = this._cyr2trans(text);
-        // из-за полностью английских имен приходится делать больше вариантов,
-        // которые могут повторяться
-        const variants = [
-            text,
-            this._cyr2lat(text),
-            this._lat2cyr(text),
-            trans,
-            this._lat2cyr(trans),
-            this._trans2cyr(text),
-        ];
-        const uniqueVariants = [];
-        variants.forEach((variant) => {
-            if (uniqueVariants.indexOf(variant) === -1) {
-                uniqueVariants.push(variant);
+    getTextSearchPosition(searchString, id) {
+        const variants = this.getCachedVariants(id);
+        let variantLength;
+        let searchPosition = getIndexOfWordBeginning(variants[0], searchString);
+        if (searchPosition === -1) {
+            let variant;
+            let variantIdx;
+            for (variantIdx = 0; !variant && variantIdx < variants.length; variantIdx++) {
+                if (variants[variantIdx].indexOf(searchString) !== -1) {
+                    variant = variants[variantIdx];
+                }
             }
-        });
-        this.variantsCache[text] = uniqueVariants;
-        return uniqueVariants;
+            if (variant) {
+                searchPosition = getIndexOfWordBeginning(variant, searchString);
+                variantLength = detransliterate(searchString, variantIdx - 2).length;
+            }
+        } else {
+            variantLength = searchString.length;
+        }
+        return { variantLength, searchPosition };
     }
 
     /**
-     * transforms input data
+     * transforms input data item
      * @private
-     * @param fullName
-     * @param avatar
-     * @param pageName
-     * @param group
-     * @param city
-     * @param id
+     * @param {string} fullName
+     * @param {string} avatar
+     * @param {string} pageName
+     * @param {string} group
+     * @param {string} city
+     * @param {string} id
      * @returns {{id: *, fullName: *, avatar: *, pageName: *, group: *, city: *}}
      */
-    _parse([fullName, avatar, pageName, group, study], id) {
+    parse([fullName, avatar, pageName, group, study], id) {
         return {
             id,
             fullName,
@@ -213,70 +156,29 @@ export class SearchCache {
     }
 
     /**
-     * rrepare cache from given data
+     * add text to index and all worlds of text too
      * @private
-     * @param data
+     * @param {text} text - source text
+     * @param {Object} link - link to indexing object
+     * @param {text} translitedFullText - put here already prepared text to prevent double transliteration
+     * @param {function} [transliterator] - transliteration function
      */
-    _data2hash(data) {
-        let text;
-        let item;
-        Object.keys(data).forEach((key) => {
-            item = data[key];
-            text = item.fullName.toLowerCase();
-            this._addCacheVariants(text, item);
-            this._splitWords(text, item);
-            this._addInitialSearch(item);
-        });
-        this.isCached = true;
-        this.callbacks.forEach(callback => callback());
-        this.callbacks = [];
+    addCacheWords(text, link, translitedFullText, transliterator) {
+        this.addCache(translitedFullText, link);
+        while (text = cutFirstWord(text)) {
+            this.addCache(transliterator ? transliterator(text) : text, link);
+        }
     }
 
     /**
-     * save item for empty search request output
-     * @param link
-     */
-    _addInitialSearch(link) {
-        this.cache.items.push(link);
-    }
-
-    /**
-     * split name by words and add them all to cache
+     * add given item to index
      * @private
-     * @param text
-     * @param link
+     * @param {string} text - transliterated name variant
+     * @param {Object} link - item to add
      */
-    _splitWords(text, link) {
-        const words = text.split(' ').filter(item => item);
-        // со 2 слова, первое и так добавится
-        words.forEach((word, num) => {
-            if (num) {
-                this._addCacheVariants(word, link);
-            }
-        });
-    }
-
-    /**
-     * add all variants of given item to cache
-     * @private
-     * @param text
-     * @param link
-     */
-    _addCacheVariants(text, link) {
-        this.getTextVariants(text).forEach((variant) => {
-            this._addCache(variant, link);
-        });
-    }
-
-    /**
-     * add given item to cache
-     * @private
-     * @param text
-     * @param link
-     */
-    _addCache(text, link) {
+    addCache(text, link) {
         // рекурсии - зло, цикл дешевле
-        let node = this.cache;
+        let node = this.index;
         let letter;
         while (text) {
             letter = text[0];
@@ -286,72 +188,16 @@ export class SearchCache {
                         link,
                     ],
                 };
-            } else {
+                // может дублироваться при совпадении начала имени и фамилии или их транслитерации
+                // Эту проверку можно ускорить если заменить массив на Map с ключами link
+            } else if (node[letter].items.indexOf(link) === -1) {
                 node[letter].items.push(link);
             }
             node = node[letter];
             text = text.substring(1);
         }
     }
-
-    /**
-     * transform given text by pattern key-value
-     * @private
-     * @param text
-     * @param transformer
-     * @returns {string}
-     */
-    _transformText(text, transformer) {
-        let result = '';
-        for (let i = 0; i < text.length; i++) {
-            result += transformer[text[i]] || text[i];
-        }
-        return result;
-    }
-
-    /**
-     * cyrillic keyboard input to latin
-     * @private
-     * @param text
-     * @returns {string}
-     */
-    _cyr2lat(text) {
-        return this._transformText(text, CYR2LAT);
-    }
-
-    /**
-     * latin keyboard input to cyrillic
-     * @private
-     * @param text
-     * @returns {string}
-     */
-    _lat2cyr(text) {
-        return this._transformText(text, LAT2CYR);
-    }
-
-    /**
-     * transliterate cyrillic text
-     * @private
-     * @param text
-     * @returns {string}
-     */
-    _cyr2trans(text) {
-        return this._transformText(text, CYR2TRANS);
-    }
-
-    /**
-     * detransliterate cyrillic text
-     * @private
-     * @param text
-     * @returns {string}
-     */
-    _trans2cyr(text) {
-        Object.keys(TRANS2CYR_LONG).forEach((key) => {
-            text = text.replace(key, TRANS2CYR_LONG[key]);
-        });
-        return this._transformText(text, TRANS2CYR);
-    }
 }
 
-// синглтон (микросервис поисковой выдачи)
+// синглтон (микросервис поисковой выдачи по именам друзей)
 export default new SearchCache();
