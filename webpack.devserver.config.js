@@ -29,4 +29,19 @@ config.devServer = {
     publicPath: '/dist',
 };
 
+config.module.rules[3] = {
+    test: /\.svg$/,
+    use: [
+        {
+            loader: 'svg-sprite-loader',
+            options: {
+                extract: true,
+                spriteFilename: 'sprite.svg',
+            },
+        },
+        'svg-fill-loader',
+        'svgo-loader',
+    ],
+}
+
 module.exports = config;

@@ -111,7 +111,7 @@ export default class ReactDropdown extends Component {
             headerOnClick = () => { this.focusInput(); };
             headerContent = (
                 <input
-                    placeholder={i18n('ведите имя друга')}
+                    placeholder={i18n('Введите имя друга')}
                     className="drop-down-search__input"
                     type="text"
                     name="search"

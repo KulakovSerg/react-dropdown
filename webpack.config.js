@@ -3,8 +3,6 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
-const fse = require('fs-extra');
-const WebpackOnBuildPlugin = require('on-build-webpack');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
 const PROD = process.env.NODE_ENV === 'production';
@@ -21,13 +19,13 @@ const SASS_PATHS = `${
 
 const plugins = [
     new ExtractTextPlugin({
-        filename: 'style/index.css',
+        filename: './index.css',
         allChunks: true,
-        disable: !PROD,
+        // disable: !PROD, // TODO SpriteLoaderPlugin on dev env
     }),
     new webpack.DefinePlugin({
         'process.env': {
-            NODE_ENV: JSON.stringify(PROD ? 'production' : 'development'),
+            NODE_ENV: JSON.stringify(PROD || true ? 'production' : 'development'),
         },
     }),
     new HtmlWebpackPlugin({
@@ -37,13 +35,6 @@ const plugins = [
         alwaysWriteToDisk: true,
     }),
     new HtmlWebpackHarddiskPlugin(),
-    new WebpackOnBuildPlugin(() => {
-        fse.copy('./api/', './dist/api', (err) => {
-            if (err) {
-                throw err;
-            }
-        });
-    }),
     new SpriteLoaderPlugin(),
 ];
 if (PROD) {
@@ -51,25 +42,11 @@ if (PROD) {
         new webpack.optimize.UglifyJsPlugin());
 }
 
-const svgLoader = [
-    {
-        loader: 'svg-sprite-loader',
-        options: {
-            extract: true,
-            spriteFilename: '/sprite.svg',
-        },
-    },
-];
-
-if (PROD) {
-    svgLoader.push('svg-fill-loader', 'svgo-loader');
-}
-
 module.exports = {
     context: path.resolve(__dirname, 'src'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        publicPath: './',
+        publicPath: '.',
         filename: 'script/[name].js',
         chunkFilename: './script/chunk.[name].[id].js',
     },
@@ -95,7 +72,8 @@ module.exports = {
                         cacheDirectory: !PROD,
                     },
                 },
-            }, {
+            },
+            {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
@@ -116,7 +94,17 @@ module.exports = {
             },
             {
                 test: /\.svg$/,
-                use: svgLoader,
+                use: [
+                    {
+                        loader: 'svg-sprite-loader',
+                        options: {
+                            extract: true,
+                            spriteFilename: '/sprite.svg',
+                        },
+                    },
+                    'svg-fill-loader',
+                    'svgo-loader',
+                ],
             },
         ],
     },
