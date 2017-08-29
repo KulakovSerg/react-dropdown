@@ -51,6 +51,20 @@ if (PROD) {
         new webpack.optimize.UglifyJsPlugin());
 }
 
+const svgLoader = [
+    {
+        loader: 'svg-sprite-loader',
+        options: {
+            extract: true,
+            spriteFilename: '/sprite.svg',
+        },
+    },
+];
+
+if (PROD) {
+    svgLoader.push('svg-fill-loader', 'svgo-loader');
+}
+
 module.exports = {
     context: path.resolve(__dirname, 'src'),
     output: {
@@ -102,17 +116,7 @@ module.exports = {
             },
             {
                 test: /\.svg$/,
-                use: [
-                    {
-                        loader: 'svg-sprite-loader',
-                        options: {
-                            extract: true,
-                            spriteFilename: 'sprite.svg',
-                        },
-                    },
-                    'svg-fill-loader',
-                    'svgo-loader',
-                ],
+                use: svgLoader,
             },
         ],
     },

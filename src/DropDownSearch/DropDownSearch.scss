@@ -1,5 +1,6 @@
 $itemHeight: 40px;
 $borderColor: #d3d9de;
+$buttonBg: #6285af;
 
 .drop-down-search {
   &__item {
@@ -69,5 +70,37 @@ $borderColor: #d3d9de;
     width: 100%;
     box-sizing: border-box;
     height: 100%;
+  }
+
+  &__header-content {
+    height: 28px;
+  }
+
+  &__select-text {
+    color: $borderColor;
+    line-height: 28px;
+    padding-left: 4px;
+  }
+
+  &__selected-item {
+    background: #6285af;
+    color: #fff;
+    border-radius: 2px;
+    padding: 4px 5px 3px;
+    max-width: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 1px 2px 2px 1px;
+  }
+
+  &__selected-item-remove {
+    border: none;
+    float: right;
+    width: 12px;
+    height: 17px;
+    margin-left: 5px;
+    cursor: pointer;
+    outline: none;
+    background: url(../img/delete.svg) no-repeat center;;
   }
 }

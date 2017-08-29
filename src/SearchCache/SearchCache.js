@@ -4,6 +4,7 @@ export class SearchCache {
     index = {
         items: [],
     };
+    hash = {};
     translitCache = {};
 
     // комменты для jsdoc пишу на своем рунглише на всякий случай,
@@ -23,6 +24,7 @@ export class SearchCache {
             Object.keys(data).forEach((key) => {
                 link = this.parse(data[key], key);
                 this.index.items.push(link);
+                this.hash[link.id] = link;
                 lowerText = link.fullName.toLowerCase();
                 // сразу добавляем в индекс нетранслитерированные имена и входящие в них слова
                 this.addCacheWords(lowerText, link, lowerText);
@@ -199,6 +201,15 @@ export class SearchCache {
             node = node[letter];
             text = text.substring(1);
         }
+    }
+
+    /**
+     * return user by id
+     * @param {string} id
+     * @returns {Object}
+     */
+    get(id) {
+        return this.hash[id];
     }
 }
 

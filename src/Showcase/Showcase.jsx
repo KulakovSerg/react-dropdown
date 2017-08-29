@@ -7,9 +7,9 @@ export default class Showcase extends Component {
         return (
             <div className="showcase">
                 <DropDownSearch
+                    avatars
                     multiselect
                     autocomplete
-                    avatars
                 />
             </div>
         );
