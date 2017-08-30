@@ -53,7 +53,12 @@ export default function ReactDropdownList(props) {
                 </div>
             </li>
         ))
-        : (<li className="drop-down-search__item drop-down-search__item_not-found">
-            {i18n('Пользователь не найден')}
-        </li>);
+        : (
+            <li
+                className="drop-down-search__item drop-down-search__item_not-found"
+                onClick={props.toggleList}
+            >
+                {i18n('Пользователь не найден')}
+            </li>
+        );
 }

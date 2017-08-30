@@ -132,6 +132,7 @@ export default class ReactDropdownSearch extends Component {
                     searchCache: this.searchCache,
                     searchString: this.state.searchString,
                     avatar: this.props.avatar,
+                    toggleList: () => { this.toggleList(); },
                 }) : null}
             </DropDown>
         );

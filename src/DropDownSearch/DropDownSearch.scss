@@ -18,6 +18,12 @@
     }
   }
 
+  &__item_not-found {
+    line-height: 34px;
+    min-height: 0;
+    color: $subTextColor;
+  }
+
   &__found-text {
     background: $textGighlightColor;
     font-style: normal;
