@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import searchCache, { SearchCache } from 'SearchCache/SearchCache';
 import DropDown from 'DropDown/DropDown';
 import './DropDownSearch.scss';
-import DropDownAutocomplete from './DropDownAutocomplete';
-import DropDownSelected from './DropDownSelected';
-import DropDownSelect from './DropDownSelect';
-import dropDownList from './DropDownList';
+import DropDownAutocomplete from './elements/DropDownAutocomplete';
+import DropDownSelected from './elements/DropDownSelected';
+import DropDownSelect from './elements/DropDownSelect';
+import dropDownList from './elements/DropDownList';
 
 /**
  * dropdown model-view component, only state container, no layout containing
