@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 
-const PROD = process.env.NODE_ENV === 'production';
+const PROD = process.env.NODE_ENV === 'production' || process.argv.indexOf('--env.prod') !== -1;
 const SOURCE_MAP = !PROD ? '?sourceMap' : '';
 const MODULE_PATHS = [
     path.join(__dirname, 'src'),
@@ -19,7 +19,7 @@ const SASS_PATHS = `${
 
 const plugins = [
     new ExtractTextPlugin({
-        filename: './index.css',
+        filename: 'index.css',
         allChunks: true,
         // disable: !PROD, // TODO SpriteLoaderPlugin fails on dev env
     }),
@@ -48,8 +48,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '.',
-        filename: 'script/[name].js',
-        chunkFilename: './script/chunk.[name].[id].js',
+        filename: '[name].js',
     },
     resolve: {
         modules: MODULE_PATHS,

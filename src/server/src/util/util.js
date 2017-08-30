@@ -1,7 +1,37 @@
-import CYR2LAT from './cirilicKeyboard.json';
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DETRANSLITERATORS = exports.TRANSLITERATORS = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 // Правила транслитерации: [ Как все привыкли (из головы), Passport (2013) ICAO, ISO 9:1995, ISO/R 9 (1968) ]
-import CYR2TRANS from './translitRules.json';
+
+
+exports.transformText = transformText;
+exports.cyr2lat = cyr2lat;
+exports.lat2cyr = lat2cyr;
+exports.cyr2trans = cyr2trans;
+exports.trans2cyr = trans2cyr;
+exports.cutFirstWord = cutFirstWord;
+exports.detransliterate = detransliterate;
+exports.getIndexOfWordBeginning = getIndexOfWordBeginning;
+exports.getTextVariants = getTextVariants;
+
+var _cirilicKeyboard = require('../../../util/cirilicKeyboard.json');
+
+var _cirilicKeyboard2 = _interopRequireDefault(_cirilicKeyboard);
+
+var _translitRules = require('../../../util/translitRules.json');
+
+var _translitRules2 = _interopRequireDefault(_translitRules);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 // решил объединить в 1 хеш 4 вариантов, чуть медленнее чем раздельно, но гораздо удобнее редактировать и расширять
 // можно все прописать сразу все варианты в обе стороны константами, но за счет экономии небольшого количетсва
 // процессорного времени получаем сложности при редактировании и рост по трафику
@@ -22,7 +52,7 @@ import CYR2TRANS from './translitRules.json';
  * @private
  */
 function reverseObj(source) {
-    return Object.keys(source).reduce((result, key) => {
+    return Object.keys(source).reduce(function (result, key) {
         result[source[key]] = key;
         return result;
     }, {});
@@ -31,17 +61,17 @@ function reverseObj(source) {
 /**
  * reverse keyboard hash
  */
-const LAT2CYR = reverseObj(CYR2LAT);
+var LAT2CYR = reverseObj(_cirilicKeyboard2.default);
 
-let transMaxLen = 1;
-Object.keys(CYR2TRANS).forEach((key) => {
-    if (typeof CYR2TRANS[key] !== 'string' && CYR2TRANS[key].length > transMaxLen) {
-        transMaxLen = CYR2TRANS[key].length;
+var transMaxLen = 1;
+Object.keys(_translitRules2.default).forEach(function (key) {
+    if (typeof _translitRules2.default[key] !== 'string' && _translitRules2.default[key].length > transMaxLen) {
+        transMaxLen = _translitRules2.default[key].length;
     }
 });
 
 // чтобы не сломать случайно пересохраняю в константу
-const LONGEST_TRANS = transMaxLen;
+var LONGEST_TRANS = transMaxLen;
 
 /**
  * @private
@@ -49,35 +79,36 @@ const LONGEST_TRANS = transMaxLen;
 function reverseTranslit(source) {
     // из каждого варианта транслитерации создается хеш и хеши записываются в массив - дубли есть,
     // но так обход потом потом быстрее и проще
-    const result = [];
-    const resultLong = [];
-    for (let i = 0; i < LONGEST_TRANS; i++) {
+    var result = [];
+    var resultLong = [];
+    for (var i = 0; i < LONGEST_TRANS; i++) {
         result[i] = {};
         resultLong[i] = {};
     }
-    let val;
-    let target;
-    let transliteration;
-    Object.keys(source).forEach((key) => {
+    var val = void 0;
+    var target = void 0;
+    var transliteration = void 0;
+    Object.keys(source).forEach(function (key) {
         val = source[key];
-        for (let i = 0; i < LONGEST_TRANS; i++) {
-            transliteration = typeof val === 'string' ? val : val[i];
+        for (var _i = 0; _i < LONGEST_TRANS; _i++) {
+            transliteration = typeof val === 'string' ? val : val[_i];
             if (transliteration) {
                 target = transliteration.length > 1 ? resultLong : result;
-                target[i][transliteration] = key;
+                target[_i][transliteration] = key;
             }
         }
     });
-    return [
-        result,
-        resultLong,
-    ];
+    return [result, resultLong];
 }
 
 /**
  * reverse transliteration hashes
  */
-const [TRANS2CYR, TRANS2CYR_LONG] = reverseTranslit(CYR2TRANS);
+
+var _reverseTranslit = reverseTranslit(_translitRules2.default),
+    _reverseTranslit2 = _slicedToArray(_reverseTranslit, 2),
+    TRANS2CYR = _reverseTranslit2[0],
+    TRANS2CYR_LONG = _reverseTranslit2[1];
 
 /**
  * transform given text by pattern key-value
@@ -87,11 +118,13 @@ const [TRANS2CYR, TRANS2CYR_LONG] = reverseTranslit(CYR2TRANS);
  * @idx transliteration varaint number
  * @returns {string}
  */
-export function transformText(text, transformer, idx) {
-    let result = '';
-    for (let i = 0, latter; i < text.length; i++) {
+
+
+function transformText(text, transformer, idx) {
+    var result = '';
+    for (var i = 0, latter; i < text.length; i++) {
         latter = text[i];
-        if (typeof transformer[latter] === 'object') {
+        if (_typeof(transformer[latter]) === 'object') {
             result += transformer[latter][idx];
         } else {
             result += transformer[latter] || text[i];
@@ -106,8 +139,8 @@ export function transformText(text, transformer, idx) {
  * @param {string} text
  * @returns {string}
  */
-export function cyr2lat(text) {
-    return transformText(text, CYR2LAT);
+function cyr2lat(text) {
+    return transformText(text, _cirilicKeyboard2.default);
 }
 
 /**
@@ -116,7 +149,7 @@ export function cyr2lat(text) {
  * @param {string} text
  * @returns {string}
  */
-export function lat2cyr(text) {
+function lat2cyr(text) {
     return transformText(text, LAT2CYR);
 }
 
@@ -127,8 +160,8 @@ export function lat2cyr(text) {
  * @param {string} text
  * @returns {string}
  */
-export function cyr2trans(translitNum, text) {
-    return transformText(text, CYR2TRANS, translitNum);
+function cyr2trans(translitNum, text) {
+    return transformText(text, _translitRules2.default, translitNum);
 }
 
 /**
@@ -137,13 +170,11 @@ export function cyr2trans(translitNum, text) {
  * @param {string} text
  * @returns {string}
  */
-export function trans2cyr(translitNum, text) {
-    Object.keys(TRANS2CYR_LONG[translitNum]).forEach((key) => {
-        let index = text.indexOf(key);
+function trans2cyr(translitNum, text) {
+    Object.keys(TRANS2CYR_LONG[translitNum]).forEach(function (key) {
+        var index = text.indexOf(key);
         while (index !== -1) {
-            text = text.substring(0, index) +
-                TRANS2CYR_LONG[translitNum][key] +
-                text.substring(index + key.length, text.length);
+            text = text.substring(0, index) + TRANS2CYR_LONG[translitNum][key] + text.substring(index + key.length, text.length);
             index = text.indexOf(key);
         }
     });
@@ -153,39 +184,29 @@ export function trans2cyr(translitNum, text) {
 /**
  * array of transliteration functions. Order = search results order
  */
-export const TRANSLITERATORS = [
-    cyr2lat,
-    lat2cyr,
-    // тут можно добавить еще раскладки клавиатуры и прочие варианты
-    // порядок = ранджирование в поиске
-];
+var TRANSLITERATORS = exports.TRANSLITERATORS = [cyr2lat, lat2cyr];
 
 /**
  * array of reverse transliteration functions. Order = TRANSLITERATORS order
  */
-export const DETRANSLITERATORS = [
-    lat2cyr,
-    cyr2lat,
-];
+var DETRANSLITERATORS = exports.DETRANSLITERATORS = [lat2cyr, cyr2lat];
 
 // Такой вот костыль появился, чтобы добавить произвольное число транслитераций в поисковый индекс
-const transliteratorVariants = [
-    cyr2trans, // транслитерированный текст
-    (num, text) => lat2cyr(cyr2trans(num, text)), // транслитерированный текст в русской раскладке
-    trans2cyr, // для поиска английских слов на русском - детранслитерированный текст
-];
+var transliteratorVariants = [cyr2trans, // транслитерированный текст
+function (num, text) {
+    return lat2cyr(cyr2trans(num, text));
+}, // транслитерированный текст в русской раскладке
+trans2cyr];
 
-const detransliteratorVariants = [
-    trans2cyr,
-    (num, text) => cyr2lat(cyr2trans(num, text)),
-    cyr2trans,
-];
+var detransliteratorVariants = [trans2cyr, function (num, text) {
+    return cyr2lat(cyr2trans(num, text));
+}, cyr2trans];
 
-const transliteratorsInitCount = TRANSLITERATORS.length;
-for (let i = 0; i < LONGEST_TRANS; i++) {
-    for (let j = 0; j < transliteratorVariants.length; j++) {
-        TRANSLITERATORS[transliteratorsInitCount + i + (j * LONGEST_TRANS)] = transliteratorVariants[j].bind(null, i);
-        DETRANSLITERATORS[transliteratorsInitCount + i + (j * LONGEST_TRANS)] = detransliteratorVariants[j].bind(null, i);
+var transliteratorsInitCount = TRANSLITERATORS.length;
+for (var i = 0; i < LONGEST_TRANS; i++) {
+    for (var j = 0; j < transliteratorVariants.length; j++) {
+        TRANSLITERATORS[transliteratorsInitCount + i + j * LONGEST_TRANS] = transliteratorVariants[j].bind(null, i);
+        DETRANSLITERATORS[transliteratorsInitCount + i + j * LONGEST_TRANS] = detransliteratorVariants[j].bind(null, i);
     }
 }
 
@@ -194,10 +215,10 @@ for (let i = 0; i < LONGEST_TRANS; i++) {
  * @param {string} text
  * @returns {string}
  */
-export function cutFirstWord(text) {
+function cutFirstWord(text) {
     // не использую тут регулярные выражения потому что они медленнее indexOf
     // и очень простая операция
-    const idx = text.indexOf(' ');
+    var idx = text.indexOf(' ');
     return idx === -1 ? '' : text.substr(idx + 1, text.length);
 }
 
@@ -207,7 +228,7 @@ export function cutFirstWord(text) {
  * @param {number} idx
  * @returns {string}
  */
-export function detransliterate(text, idx) {
+function detransliterate(text, idx) {
     return DETRANSLITERATORS[idx](text);
 }
 
@@ -217,10 +238,10 @@ export function detransliterate(text, idx) {
  * @param {string} search
  * @returns {number}
  */
-export function getIndexOfWordBeginning(text, search) {
-    let position = text.indexOf(search);
+function getIndexOfWordBeginning(text, search) {
+    var position = text.indexOf(search);
     if (position === -1) {
-        position = text.indexOf(` ${search}`);
+        position = text.indexOf(' ' + search);
         if (position !== -1) {
             position += 1;
         }
@@ -233,7 +254,7 @@ export function getIndexOfWordBeginning(text, search) {
  * @param text
  * @returns {Array}
  */
-export function getTextVariants(text) {
+function getTextVariants(text) {
     text = text.toLowerCase();
     return [text].concat(TRANSLITERATORS.map(transliterator => transliterator(text)));
 }
