@@ -1,6 +1,4 @@
-$itemHeight: 40px;
-$borderColor: #d3d9de;
-$buttonBg: #6285af;
+@import "util/styleguide";
 
 .drop-down-autocomplete {
   &__input {
@@ -12,6 +10,11 @@ $buttonBg: #6285af;
     border: 0;
     width: 100%;
     box-sizing: border-box;
-    height: 100%;
+    line-height: 17px;
+  }
+
+  &__input_inline{
+    display: inline-block;
+    width: auto;
   }
 }

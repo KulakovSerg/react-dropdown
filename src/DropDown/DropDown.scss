@@ -1,14 +1,12 @@
-$itemHeight: 40px;
-$borderColor: #d3d9de;
+@import "util/styleguide";
 
 .drop-down {
-  background: #fff;
+  background: $defaultBg;
   border: 1px solid $borderColor;
   border-radius: 1px;
   position: relative;
   overflow: visible;
   box-sizing: border-box;
-  height:30PX;
   overflow: visible;
 
   &__trigger {
@@ -22,6 +20,7 @@ $borderColor: #d3d9de;
     background-size: 50%;
     position: absolute;
     right: 0;
+    bottom: 0;
     outline: none;
   }
 
@@ -34,11 +33,11 @@ $borderColor: #d3d9de;
   }
 
   &__list-wrapper {
-    border: solid #c9d0d6;
+    border: solid $borderColor2;
     border-width: 1px;
     border-radius: 0 0 1px 1px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.1);
-    position: absolute;
+    box-shadow: 0 1px 3px $shadowColor;
+    position: absolute!important; //надо разбираться где в плагине настроить
     margin-left: -1px;
   }
 
@@ -60,13 +59,12 @@ $borderColor: #d3d9de;
     display: block;
     cursor: pointer;
     transform: translateY(0px);
-    background: #dae1e8;
+    background: $scrollThumbColor;
     border-radius: 3px;
   }
 
-
   &__scroll-vertical:hover &__scroll-thumb-vertical {
-    background: #bec8d3;
+    background: $scrollColor;
     border-radius: 4px;
   }
 }

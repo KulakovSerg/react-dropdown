@@ -54,6 +54,7 @@ export default class ReactDropdownSearch extends Component {
         searchString: '',
         items: [],
         selectedItems: [],
+        displayList: false,
     };
     componentWillMount() {
         // TODO индекс генерирутеся составляется всегда, но можно сделать более красиво,
@@ -64,19 +65,17 @@ export default class ReactDropdownSearch extends Component {
     handleSearch(searchString) {
         this.setState(() => ({
             searchString,
+            displayList: true,
             items: this.searchCache.search(searchString),
         }));
     }
-    toggleList(flag) {
-        if (flag) {
-            this.setState(() => ({
-                items: this.searchCache.search(this.state.searchString),
-            }));
-        } else {
-            this.setState(() => ({
-                items: [],
-            }));
-        }
+    toggleList() {
+        this.setState(state => ({
+            displayList: !state.displayList,
+            items: !state.displayList && !state.items.length && !state.searchString ?
+                this.searchCache.search('')
+                : state.items,
+        }));
     }
     select(id) {
         const selectedItems = this.props.multiselect ? this.state.selectedItems : [];
@@ -87,6 +86,7 @@ export default class ReactDropdownSearch extends Component {
         this.setState(() => ({
             selectedItems,
             items: [],
+            displayList: false,
         }));
     }
     removeSelected(num) {
@@ -107,10 +107,15 @@ export default class ReactDropdownSearch extends Component {
                 className="drop-down-search__header-content"
                 searchString={this.state.searchString}
                 handleSearch={(str) => { this.handleSearch(str); }}
+                isSelected={!!this.state.selectedItems.length}
             >
                 {selectedItems}
             </DropDownAutocomplete>) :
-            (<DropDownSelect className="drop-down-search__header-content">
+            (<DropDownSelect
+                className="drop-down-search__header-content"
+                isSelected={!!this.state.selectedItems.length}
+                toggleList={() => { this.toggleList(); }}
+            >
                 {selectedItems}
             </DropDownSelect>);
         return (
@@ -118,17 +123,16 @@ export default class ReactDropdownSearch extends Component {
                 className="drop-down-search"
                 opened={this.state.items.length}
                 heightMax={this.props.heightMax}
-                buttonOnClick={() => this.toggleList(!this.state.items.length)}
+                buttonOnClick={() => { this.toggleList(); }}
                 header={header}
-                displayList={!!this.state.items.length}
             >
-                {dropDownList({
+                {this.state.displayList ? dropDownList({
                     items: this.state.items,
                     select: (id) => { this.select(id); },
                     searchCache: this.searchCache,
                     searchString: this.state.searchString,
                     avatar: this.props.avatar,
-                })}
+                }) : null}
             </DropDown>
         );
     }

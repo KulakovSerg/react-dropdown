@@ -56,7 +56,7 @@ export default class ReactDropdown extends Component {
                 />
                 {this.props.header}
                 {
-                    this.props.displayList ?
+                    this.props.children ?
                         <Scroll
                             hideTracksWhenNotNeeded
                             autoHeight

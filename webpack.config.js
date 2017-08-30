@@ -21,10 +21,11 @@ const plugins = [
     new ExtractTextPlugin({
         filename: './index.css',
         allChunks: true,
-        // disable: !PROD, // TODO SpriteLoaderPlugin on dev env
+        // disable: !PROD, // TODO SpriteLoaderPlugin fails on dev env
     }),
     new webpack.DefinePlugin({
         'process.env': {
+            // TODO SpriteLoaderPlugin fails on dev env
             NODE_ENV: JSON.stringify(PROD ? 'production' : 'development'),
         },
     }),
