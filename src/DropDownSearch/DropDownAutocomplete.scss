@@ -1,0 +1,17 @@
+$itemHeight: 40px;
+$borderColor: #d3d9de;
+$buttonBg: #6285af;
+
+.drop-down-autocomplete {
+  &__input {
+    font-size: 13px;
+    outline: none;
+    box-shadow: none;
+    padding: 4px 6px 6px;
+    margin: 0;
+    border: 0;
+    width: 100%;
+    box-sizing: border-box;
+    height: 100%;
+  }
+}

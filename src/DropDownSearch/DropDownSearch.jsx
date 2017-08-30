@@ -1,21 +1,29 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import searchCache from 'SearchCache/SearchCache';
-import i18n from 'util/i18n';
+import searchCache, { SearchCache } from 'SearchCache/SearchCache';
 import DropDown from 'DropDown/DropDown';
 import './DropDownSearch.scss';
+import DropDownAutocomplete from './DropDownAutocomplete';
+import DropDownSelected from './DropDownSelected';
+import DropDownSelect from './DropDownSelect';
+import dropDownList from './DropDownList';
 
 /**
- * dropdown list component
+ * dropdown model-view component, only state container, no layout containing
  */
-export default class ReactDropdown extends Component {
+// "умный" компонент не содержит верстки, текстов и проч., но хранит и обрабатывает изменине состояний
+// управляет "глупыми" компонентами, не содержищими состояний и принимающими на вход только свойства
+// стандартная для React архитектура, в такой схеме части компонента быстро заменяются и легко переиспользуются
+export default class ReactDropdownSearch extends Component {
     static defaultProps = {
         multiselect: false,
         serversearch: '',
         autocomplete: false,
         avatar: true,
         heightMax: undefined,
+        searchCache: null,
     };
+    // оверхед в виде propTypes выполняет проверки только на дев-сборке, при минификации на прод отпиливается полностью
     static propTypes = {
         /**
          * ability to select multiple items in a list
@@ -37,42 +45,32 @@ export default class ReactDropdown extends Component {
          * maximum height of dropdown list before scroll
          */
         heightMax: PropTypes.number,
+        /**
+         * alternative searchCache instance
+         */
+        searchCache: PropTypes.object,
     };
     state={
         searchString: '',
         items: [],
         selectedItems: [],
     };
+    componentWillMount() {
+        // TODO индекс генерирутеся составляется всегда, но можно сделать более красиво,
+        // если передавать инстанс только когда нужно. Если не передавать, то не будет шариться между разными списками
+        // this.searchCache = this.props.searchCache || new SearchCache(this.props.autocomplete);
+        this.searchCache = this.props.searchCache || searchCache;
+    }
     handleSearch(searchString) {
         this.setState(() => ({
             searchString,
-            items: searchCache.search(searchString),
+            items: this.searchCache.search(searchString),
         }));
-    }
-    prepareText(text, id) {
-        const searchString = this.state.searchString.toLowerCase();
-        let html;
-        if (searchString) {
-            const { variantLength, searchPosition } = searchCache.getTextSearchPosition(searchString, id);
-            if (variantLength) {
-                const selectedText = text.substr(searchPosition, variantLength);
-                html = text.split(selectedText);
-                html.splice(1, 0, (
-                    <em
-                        className="drop-down-search__found-text"
-                        key="em"
-                    >
-                        {selectedText}
-                    </em>
-                ));
-            }
-        }
-        return html || text;
     }
     toggleList(flag) {
         if (flag) {
             this.setState(() => ({
-                items: searchCache.search(this.state.searchString),
+                items: this.searchCache.search(this.state.searchString),
             }));
         } else {
             this.setState(() => ({
@@ -82,7 +80,7 @@ export default class ReactDropdown extends Component {
     }
     select(id) {
         const selectedItems = this.props.multiselect ? this.state.selectedItems : [];
-        const item = searchCache.get(id);
+        const item = this.searchCache.get(id);
         if (!this.props.multiselect || selectedItems.indexOf(item) === -1) {
             selectedItems.push(item);
         }
@@ -90,11 +88,6 @@ export default class ReactDropdown extends Component {
             selectedItems,
             items: [],
         }));
-    }
-    focusInput() {
-        if (this.inputNode) {
-            this.inputNode.focus();
-        }
     }
     removeSelected(num) {
         const selectedItems = this.state.selectedItems.slice();
@@ -105,86 +98,37 @@ export default class ReactDropdown extends Component {
         }));
     }
     render() {
-        let headerOnClick;
-        let headerContent;
-        if (this.props.autocomplete) {
-            headerOnClick = () => { this.focusInput(); };
-            headerContent = (
-                <input
-                    placeholder={i18n('Введите имя друга')}
-                    className="drop-down-search__input"
-                    type="text"
-                    name="search"
-                    value={this.state.searchString}
-                    onChange={event => this.handleSearch(event.target.value)}
-                    autoComplete="off"
-                    ref={(node) => { this.inputNode = node; }}
-                />
-            );
-        } else {
-            headerOnClick = () => this.toggleList(!this.state.items.length);
-            headerContent = !this.state.selectedItems.length ?
-                (<div className="drop-down-search__select-text">
-                    {i18n('выберите друга из списка')}
-                </div>)
-                : null;
-        }
-        const header = (
-            <div
-                onClick={headerOnClick}
-                className="drop-down-search__header-content"
-            >
-                {this.state.selectedItems.map((item, num) => (
-                    <div
-                        className="drop-down-search__selected-item"
-                        onClick={(event) => { event.stopPropagation(); }}
-                        key={num}
-                    >
-                        {item.fullName}
-                        <button
-                            type="button"
-                            className="drop-down-search__selected-item-remove"
-                            onClick={() => { this.removeSelected(num); }}
-                        />
-                    </div>
-                ))}
-                {headerContent}
-            </div>
+        const selectedItems = DropDownSelected(
+            this.state.selectedItems,
+            (num) => { this.removeSelected(num); },
         );
-        const content = this.state.items.length ?
-            this.state.items.map((item, num) => (
-                <li
-                    className="drop-down-search__item"
-                    key={num}
-                    onClick={() => { this.select(item.id); }}
-                >
-                    { this.props.avatar ?
-                        <img
-                            className="drop-down-search__avatar"
-                            src={item.avatar}
-                            alt=""
-                        />
-                        : null
-                    }
-                    <div className="drop-down-search__item-header">
-                        {this.prepareText(item.fullName, item.id)}
-                    </div>
-                    <div className="drop-down-search__item-text">
-                        {item.study}
-                    </div>
-                </li>
-            ))
-            : (<div className="drop-down-search__user-not-found">
-                {i18n('Пользователь не найден')}
-            </div>);
+        const header = this.props.autocomplete ?
+            (<DropDownAutocomplete
+                className="drop-down-search__header-content"
+                searchString={this.state.searchString}
+                handleSearch={(str) => { this.handleSearch(str); }}
+            >
+                {selectedItems}
+            </DropDownAutocomplete>) :
+            (<DropDownSelect className="drop-down-search__header-content">
+                {selectedItems}
+            </DropDownSelect>);
         return (
             <DropDown
+                className="drop-down-search"
                 opened={this.state.items.length}
                 heightMax={this.props.heightMax}
                 buttonOnClick={() => this.toggleList(!this.state.items.length)}
                 header={header}
+                displayList={!!this.state.items.length}
             >
-                {content}
+                {dropDownList({
+                    items: this.state.items,
+                    select: (id) => { this.select(id); },
+                    searchCache: this.searchCache,
+                    searchString: this.state.searchString,
+                    avatar: this.props.avatar,
+                })}
             </DropDown>
         );
     }

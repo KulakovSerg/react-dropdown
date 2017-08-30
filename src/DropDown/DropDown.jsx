@@ -12,7 +12,7 @@ export default class ReactDropdown extends Component {
         /**
          * header component
          */
-        header: undefined,
+        header: null,
         /**
          * maximum height of dropdown list before scroll
          */
@@ -20,11 +20,19 @@ export default class ReactDropdown extends Component {
         /**
          * onclick button function
          */
-        buttonOnClick: undefined,
+        buttonOnClick: null,
         /**
          * if button should be shown
          */
         displayButton: true,
+        /**
+         * display dropdown list
+         */
+        displayList: false,
+        /**
+         * dropdown items list
+         */
+        children: null,
     };
     static propTypes = {
         header: PropTypes.oneOfType([
@@ -35,6 +43,8 @@ export default class ReactDropdown extends Component {
         heightMax: PropTypes.number,
         buttonOnClick: PropTypes.func,
         displayButton: PropTypes.bool,
+        displayList: PropTypes.bool,
+        children: PropTypes.element,
     };
     render() {
         return (
@@ -46,7 +56,7 @@ export default class ReactDropdown extends Component {
                 />
                 {this.props.header}
                 {
-                    this.props.children.length ?
+                    this.props.displayList ?
                         <Scroll
                             hideTracksWhenNotNeeded
                             autoHeight

@@ -25,7 +25,7 @@ const plugins = [
     }),
     new webpack.DefinePlugin({
         'process.env': {
-            NODE_ENV: JSON.stringify(PROD || true ? 'production' : 'development'),
+            NODE_ENV: JSON.stringify(PROD ? 'production' : 'development'),
         },
     }),
     new HtmlWebpackPlugin({
