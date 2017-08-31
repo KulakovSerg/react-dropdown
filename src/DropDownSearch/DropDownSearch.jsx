@@ -112,7 +112,7 @@ export default class ReactDropdownSearch extends Component {
             }
         });
         serverSearch.forEach((item) => {
-            if (!map[item.id]) {
+            if (!map[item.id] && !selectedMap[item.id]) {
                 result.push(item);
             }
         });

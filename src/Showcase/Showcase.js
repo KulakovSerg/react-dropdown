@@ -1,4 +1,5 @@
 import React from 'react';
+import 'util/polyfill';
 import { render } from 'react-dom';
 import Showcase from './Showcase.jsx';
 

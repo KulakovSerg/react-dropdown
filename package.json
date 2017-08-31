@@ -10,6 +10,7 @@
     "babel-preset-stage-1": "^6.24.1",
     "bundle-loader": "^0.5.5",
     "classnames": "^2.2.5",
+    "core-js": "^2.5.0",
     "css-loader": "^0.28.5",
     "express": "^4.15.4",
     "extract-text-webpack-plugin": "^3.0.0",
@@ -28,6 +29,7 @@
     "svg-sprite-loader": "^3.2.4",
     "svgo-loader": "^1.2.1",
     "webpack": "^3.5.5",
+    "whatwg-fetch": "^2.0.3",
     "yargs": "^8.0.2"
   },
   "devDependencies": {
