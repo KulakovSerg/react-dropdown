@@ -8,10 +8,12 @@ export default class Showcase extends Component {
         return (
             <div className="showcase">
                 <DropDownSearch
-                    avatars
                     multiselect
                     autocomplete
                     serversearch
+                    avatar
+                    // searchCache = {new SearchCache(data, true)} //можно передать тут инстанс searchCache
+                    // чтобы пошарить поиск и кеш между несколькими экземплярами
                     data={data}
                 />
             </div>

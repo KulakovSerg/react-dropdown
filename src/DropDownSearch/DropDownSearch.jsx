@@ -19,7 +19,7 @@ export default class ReactDropdownSearch extends Component {
         multiselect: false,
         serversearch: false,
         autocomplete: false,
-        avatar: true,
+        avatar: false,
         heightMax: undefined,
         searchCache: null,
         userInputDelay: 500,
@@ -101,6 +101,7 @@ export default class ReactDropdownSearch extends Component {
     }
     filterDuplicates(clientSearch, serverSearch) {
         // тут можно и нормально сделать без перебора 100 раз, но времени уже нет менять все остальное
+        // или воообще es6 Map - дает хеш-поиск по ключам, итерация работает ~ на 30% быстрее чем в объекте
         const selectedMap = {};
         this.state.selectedItems.forEach((item) => { selectedMap[item.id] = true; });
         const map = {};
@@ -111,18 +112,20 @@ export default class ReactDropdownSearch extends Component {
                 map[item.id] = true;
             }
         });
-        serverSearch.forEach((item) => {
-            if (!map[item.id] && !selectedMap[item.id]) {
-                result.push(item);
-            }
-        });
+        if (serverSearch) {
+            serverSearch.forEach((item) => {
+                if (!map[item.id] && !selectedMap[item.id]) {
+                    result.push(item);
+                }
+            });
+        }
         return result;
     }
     toggleList() {
         this.setState(state => ({
             displayList: !state.displayList,
             items: !state.displayList && !state.items.length && !state.searchString ?
-                this.searchCache.search('')
+                this.filterDuplicates(this.searchCache.search(''))
                 : state.items,
         }));
     }

@@ -44,10 +44,10 @@ export default class ReactDropdown extends Component {
         buttonOnClick: PropTypes.func,
         displayButton: PropTypes.bool,
         displayList: PropTypes.bool,
-        children: PropTypes.oneOf(
+        children: PropTypes.oneOfType([
             PropTypes.arrayOf(PropTypes.element),
             PropTypes.element,
-        ),
+        ]),
     };
     render() {
         return (

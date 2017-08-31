@@ -15,7 +15,7 @@ export default class ReactDropdownSelect extends Component {
         /**
          * input value
          */
-        isSelected: PropTypes.string,
+        isSelected: PropTypes.bool,
         /**
          * input onchange
          */
