@@ -100,14 +100,23 @@ export default class ReactDropdownSearch extends Component {
         }, this.props.userInputDelay);
     }
     filterDuplicates(clientSearch, serverSearch) {
+        // тут можно и нормально сделать без перебора 100 раз, но времени уже нет менять все остальное
+        const selectedMap = {};
+        this.state.selectedItems.forEach((item) => { selectedMap[item.id] = true; });
         const map = {};
-        clientSearch.forEach((item) => { map[item.id] = true; });
-        serverSearch.forEach((item) => {
-            if (!map[item.id]) {
-                clientSearch.push(item);
+        const result = [];
+        clientSearch.forEach((item) => {
+            if (!selectedMap[item.id]) {
+                result.push(item);
+                map[item.id] = true;
             }
         });
-        return clientSearch;
+        serverSearch.forEach((item) => {
+            if (!map[item.id]) {
+                result.push(item);
+            }
+        });
+        return result;
     }
     toggleList() {
         this.setState(state => ({
@@ -134,8 +143,11 @@ export default class ReactDropdownSearch extends Component {
         selectedItems.splice(num, 1);
         this.setState(() => ({
             selectedItems,
-            items: [],
+            displayList: false,
         }));
+        if (this.state.searchString) {
+            this.handleSearch(this.state.searchString);
+        }
     }
     render() {
         const selectedItems = DropDownSelected(
