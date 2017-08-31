@@ -1,11 +1,25 @@
 import { TRANSLITERATORS, cutFirstWord, getIndexOfWordBeginning, detransliterate } from 'util/util.js';
 
-export class SearchCache {
+export default class SearchCache {
     index = {
         items: [],
     };
     hash = {};
     translitCache = {};
+    needIndex = false;
+    serverSearchCache = {};
+
+    /**
+     * constructor
+     * @param data
+     * @param needIndex
+     */
+    constructor(data, needIndex = false) {
+        this.needIndex = needIndex;
+        if (data) {
+            this.addDataAsync(data);
+        }
+    }
 
     // комменты для jsdoc пишу на своем рунглише на всякий случай,
     // но только для тестового задания - проясенния по коду на русском "почему именно так сделал"
@@ -17,21 +31,23 @@ export class SearchCache {
         // в предыдущих пулреквестах код был покрасивее
         // но место нагруженное и я решил немного оптимизировать
         // поэтому точка входа такая с вложенными циклами
-        setTimeout(() => {
-            let link;
-            let lowerText;
-            // циклы for..in или что-то более оптимальное по помяти eslint рекомендует заменить на такую запись
-            Object.keys(data).forEach((key) => {
-                link = this.parse(data[key], key);
-                this.index.items.push(link);
-                this.hash[link.id] = link;
+        let link;
+        let lowerText;
+        // циклы for..in или что-то более оптимальное по помяти eslint рекомендует заменить на такую запись
+        Object.keys(data).forEach((key) => {
+            link = this.parse(data[key], key);
+            this.index.items.push(link);
+            this.hash[link.id] = link;
+            if (this.needIndex) {
                 lowerText = link.fullName.toLowerCase();
                 // сразу добавляем в индекс нетранслитерированные имена и входящие в них слова
                 this.addCacheWords(lowerText, link, lowerText);
                 // чтобы не проверить лишний раз внутри функции передаю тут текст дважды,
                 // во всех других ее вызовах текст разный
                 this.translitCache[key] = [lowerText];
-            });
+            }
+        });
+        if (this.needIndex) {
             // тут такие циклы вместо foreach чтобы не плодить скоупы лишние
             for (let i = 0, transText, transliterator; i < TRANSLITERATORS.length; i++) {
                 transliterator = TRANSLITERATORS[i];
@@ -56,7 +72,7 @@ export class SearchCache {
                     this.translitCache[link.id].push(transText);
                 }
             }
-        });
+        }
 
         // изначально вариант транслитерации был только 1 и весь алгоритм расчитан на то, что добавляемые в индекс
         // варианты слов не имеют повторяющихся частей. Когда вариантов транслита стало 4, появилось множество
@@ -65,6 +81,16 @@ export class SearchCache {
 
         // если бы я не усложнил себе задачу подсветкой найденной подстроки, то алгоритм был бы другим, написание и
         // проверка кода заняли бы в гораздо меньше времени
+    }
+
+    /**
+     * add data in the end of event loop
+     * @param data
+     */
+    addDataAsync(data) {
+        setTimeout(() => {
+            this.addData(data);
+        });
     }
 
     /**
@@ -97,6 +123,9 @@ export class SearchCache {
     // sherb => Сергей Щербаков
     // shherb => Сергей Щербаков
     // shch => Сергей Щербаков
+    // server:
+    // drew => Андрей Рогозов
+    // sound => Богдан Чадкин
 
     /**
      * returns all variants of transliterated strings
@@ -125,6 +154,7 @@ export class SearchCache {
                     variant = variants[variantIdx];
                 }
             }
+
             if (variant) {
                 searchPosition = getIndexOfWordBeginning(variant, searchString);
                 // TODO кажется есть проблемы с подствекой "кщпщ" и "she" - частичная транслитерация
@@ -149,7 +179,7 @@ export class SearchCache {
      * @param {string} id
      * @returns {{id: *, fullName: *, avatar: *, pageName: *, group: *, city: *}}
      */
-    parse([fullName, avatar, pageName, group, study], id) {
+    parse([fullName, avatar, pageName, group, study], id, serverSearch) {
         return {
             id,
             fullName,
@@ -157,6 +187,7 @@ export class SearchCache {
             pageName,
             group,
             study,
+            serverSearch,
         };
     }
 
@@ -211,7 +242,33 @@ export class SearchCache {
     get(id) {
         return this.hash[id];
     }
-}
 
-// синглтон (микросервис поисковой выдачи по именам друзей)
-export default new SearchCache();
+    /**
+     * if request is already completed returns cached else fetch server
+     * @param query
+     * @returns {Promise}
+     */
+    serverSearch(query) {
+        if (this.serverSearchCache[query]) {
+            return new Promise((resolve) => {
+                resolve(this.serverSearchCache[query]);
+            });
+        }
+        return fetch(`/search?q=${query}`).then(response => response.json().then((data) => {
+            this.serverSearchCache[query] = Object.keys(data).map((key) => {
+                this.hash[key] = this.parse(data[key], key, true);
+                return this.hash[key];
+            });
+            return this.serverSearchCache[query];
+        }));
+    }
+
+    /**
+     * returns cached search request result
+     * @param query
+     * @returns {Array}
+     */
+    getRequestCache(query) {
+        return this.serverSearchCache[query] || [];
+    }
+}

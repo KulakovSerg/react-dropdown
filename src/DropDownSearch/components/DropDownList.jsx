@@ -43,7 +43,7 @@ export default function ReactDropdownList(props) {
                     : null
                 }
                 <div className="drop-down-search__item-header">
-                    {props.searchString ?
+                    {props.searchString && !item.serverSearch ?
                         prepareText(props, item.fullName, item.id)
                         : item.fullName
                     }

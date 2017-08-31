@@ -44,7 +44,10 @@ export default class ReactDropdown extends Component {
         buttonOnClick: PropTypes.func,
         displayButton: PropTypes.bool,
         displayList: PropTypes.bool,
-        children: PropTypes.arrayOf(PropTypes.element),
+        children: PropTypes.oneOf(
+            PropTypes.arrayOf(PropTypes.element),
+            PropTypes.element,
+        ),
     };
     render() {
         return (

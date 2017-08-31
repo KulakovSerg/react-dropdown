@@ -1,6 +1,8 @@
-const config = require('./webpack.config.js');
 const path = require('path');
 const webpack = require('webpack');
+const yargs = require('yargs').argv;
+const config = require('./webpack.config.js');
+require('./src/server/server');
 
 config.entry = {
     'react-hot-loader/patch': 'react-hot-loader/patch',
@@ -27,6 +29,12 @@ config.devServer = {
         errors: true,
     },
     publicPath: '/dist',
+    proxy: {
+        '/search': {
+            target: `http://localhost:${(yargs.port || 8080) + 1}`,
+            logLevel: 'debug',
+        },
+    },
 };
 
 config.module.rules[3] = {
@@ -42,6 +50,6 @@ config.module.rules[3] = {
         'svg-fill-loader',
         'svgo-loader',
     ],
-}
+};
 
 module.exports = config;

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import searchCache, { SearchCache } from 'SearchCache/SearchCache';
+import SearchCache from 'SearchCache/SearchCache';
 import DropDown from 'DropDown/DropDown';
 import './DropDownSearch.scss';
-import DropDownAutocomplete from './elements/DropDownAutocomplete';
-import DropDownSelected from './elements/DropDownSelected';
-import DropDownSelect from './elements/DropDownSelect';
-import dropDownList from './elements/DropDownList';
+import DropDownAutocomplete from './components/DropDownAutocomplete';
+import DropDownSelected from './components/DropDownSelected';
+import DropDownSelect from './components/DropDownSelect';
+import dropDownList from './components/DropDownList';
 
 /**
  * dropdown model-view component, only state container, no layout containing
@@ -17,11 +17,13 @@ import dropDownList from './elements/DropDownList';
 export default class ReactDropdownSearch extends Component {
     static defaultProps = {
         multiselect: false,
-        serversearch: '',
+        serversearch: false,
         autocomplete: false,
         avatar: true,
         heightMax: undefined,
         searchCache: null,
+        userInputDelay: 500,
+        data: {},
     };
     // оверхед в виде propTypes выполняет проверки только на дев-сборке, при минификации на прод отпиливается полностью
     static propTypes = {
@@ -32,7 +34,7 @@ export default class ReactDropdownSearch extends Component {
         /**
          * url to search on server
          */
-        serversearch: PropTypes.string,
+        serversearch: PropTypes.bool,
         /**
          * use client-side autocomplete for input
          */
@@ -49,6 +51,14 @@ export default class ReactDropdownSearch extends Component {
          * alternative searchCache instance
          */
         searchCache: PropTypes.object,
+        /**
+         * delay keyboard input bewtween server requests
+         */
+        userInputDelay: PropTypes.number,
+        /**
+         * list data
+         */
+        data: PropTypes.object,
     };
     state={
         searchString: '',
@@ -57,17 +67,47 @@ export default class ReactDropdownSearch extends Component {
         displayList: false,
     };
     componentWillMount() {
-        // TODO индекс генерирутеся составляется всегда, но можно сделать более красиво,
-        // если передавать инстанс только когда нужно. Если не передавать, то не будет шариться между разными списками
-        // this.searchCache = this.props.searchCache || new SearchCache(this.props.autocomplete);
-        this.searchCache = this.props.searchCache || searchCache;
+        this.searchCache = this.props.searchCache || new SearchCache(this.props.data, this.props.autocomplete);
     }
+    delayedSearch;
     handleSearch(searchString) {
+        const clientSearch = this.searchCache.search(searchString);
+        const serverSearch = (this.props.serversearch && this.searchCache.getRequestCache(searchString)) || [];
         this.setState(() => ({
             searchString,
             displayList: true,
-            items: this.searchCache.search(searchString),
+            items: this.filterDuplicates(clientSearch, serverSearch),
         }));
+        if (this.props.serversearch && !serverSearch.length) {
+            this.serverSearchDebounce(searchString);
+        }
+    }
+    serverSearchDebounce(searchString) {
+        if (this.delayedSearch) {
+            clearTimeout(this.delayedSearch);
+        }
+        this.delayedSearch = setTimeout(() => {
+            this.searchCache.serverSearch(searchString).then((serverSearch) => {
+                this.delayedSearch = null;
+                if (searchString !== this.state.searchString) {
+                    this.serverSearchDebounce(this.state.searchString);
+                } else {
+                    this.setState({
+                        items: this.filterDuplicates(this.state.items, serverSearch),
+                    });
+                }
+            });
+        }, this.props.userInputDelay);
+    }
+    filterDuplicates(clientSearch, serverSearch) {
+        const map = {};
+        clientSearch.forEach((item) => { map[item.id] = true; });
+        serverSearch.forEach((item) => {
+            if (!map[item.id]) {
+                clientSearch.push(item);
+            }
+        });
+        return clientSearch;
     }
     toggleList() {
         this.setState(state => ({

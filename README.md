@@ -12,16 +12,22 @@ _yarn build_
 uglify, separate css file.
 Build is available by local absolute path in ./dist directory
 
-**dev build:**
-
-_yarn build-dev_
-
-without css file
-
-**start devserver:**
+**build and start temp-server:**
 
 _yarn start_
 
+(if port is busy: yarn start -- --port=[number])
+
+**start devserver:**
+
+_yarn start-dev_
+
 hot reload, http://localhost:8080
 
-(if port/domain is busy: yarn start -- --host 127.0.0.1 --port 9000)
+(if port/domain is busy: yarn start-dev -- --host 127.0.0.1 --port 9000)
+
+**generate docs:**
+
+_yarn doc_
+
+creates react-docgen.json in /doc directory

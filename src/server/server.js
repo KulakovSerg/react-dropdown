@@ -7,7 +7,7 @@ const yargs = require('yargs').argv;
 const path = require('path');
 
 const app = express();
-const port = yargs.port || 8080;
+const port = (yargs.port || 8080) + (yargs.$0 && yargs.$0.indexOf('webpack-dev-server') !== -1 ? 1 : 0);
 
 app
     .use('/', express.static('dist'))
@@ -30,9 +30,9 @@ app
             }
         });
 
-        res.setHeader('Content-Type', 'application/json');
+        res.header('Content-Type', 'application/json');
         res.send(JSON.stringify(result));
     })
     .listen(port, () => {
-        console.log(`Govnokod app is running on port ${port}!`);
+        console.log(`Temp server is running on port ${port}!`);
     });
