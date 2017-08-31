@@ -43,14 +43,10 @@
     "react-docgen": "^2.17.0",
     "webpack-dev-server": "^2.7.1"
   },
-  "engine": {
-    "node": "*",
-    "npm": "*"
-  },
   "scripts": {
     "build": "webpack --env.prod",
     "build-dev": "webpack --devtool eval-source-map",
-    "start": "webpack --env.prod && node server.js",
+    "start": "webpack --env.prod && node src/server/server",
     "start-dev": "webpack-dev-server --watch-poll --devtool eval-source-map --config webpack.devserver.config",
     "doc": "node ./node_modules/react-docgen/bin/react-docgen.js ./src/DropDownSearch ./src/DropDown -o ./doc/react-docgen.json --pretty",
     "prepare-server-utils": "node ./node_modules/babel-cli/bin/babel.js ./src/util/util.js --out-dir=./src/server --presets=env --no-babelrc"
