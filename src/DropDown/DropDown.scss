@@ -54,6 +54,10 @@
     }
   }
 
+  doesnotexist:-o-prefocus, &__scroll-vertical {
+    height: 100%;
+  }
+
   &__scroll-thumb-vertical {
     position: relative;
     display: block;
