@@ -16,6 +16,7 @@ const SASS_PATHS = `${
 }includePaths[]=${
     MODULE_PATHS.join('&includePaths[]=')
 }`;
+const POSTCSS = PROD ? '!postcss-loader' : '';
 
 const plugins = [
     new ExtractTextPlugin({
@@ -89,7 +90,7 @@ module.exports = {
                 exclude: /node_modules/,
                 use: ExtractTextPlugin.extract({
                     fallback: `style-loader${SOURCE_MAP}`,
-                    use: `css-loader${SOURCE_MAP}!sass-loader${SOURCE_MAP}${SASS_PATHS}`,
+                    use: `css-loader${SOURCE_MAP}${POSTCSS}!sass-loader${SOURCE_MAP}${SASS_PATHS}`,
                 }),
             },
             {
