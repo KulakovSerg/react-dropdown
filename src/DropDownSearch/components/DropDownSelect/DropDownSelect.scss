@@ -1,0 +1,13 @@
+@import "util/styleguide";
+
+.drop-down-search {
+  &__select-text {
+    color: $borderColor;
+    line-height: 28px;
+    padding-left: 4px;
+  }
+
+  &__header-content {
+    padding: 1px 0 0 1px;
+  }
+}

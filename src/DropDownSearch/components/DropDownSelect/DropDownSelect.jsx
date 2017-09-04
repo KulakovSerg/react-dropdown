@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import i18n from 'util/i18n';
+import './DropDownSelect.scss';
 
 /**
  * dropdown header without autocomplete function

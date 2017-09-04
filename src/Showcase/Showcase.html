@@ -10,5 +10,31 @@
 <body>
 <div class="content">
 </div>
+<script type="text/javascript">
+    /*old opera & ie hack*/
+    if(
+        navigator.userAgent.indexOf("Opera") !== -1 && navigator.userAgent.indexOf('Version/12') !== -1 ||
+        navigator.userAgent.indexOf("Trident/7.0") !== -1 || navigator.userAgent.indexOf("MSIE") !== -1
+    ) {
+        var head = document.getElementsByTagName('head')[0];
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '/icon/hack.css';
+        head.appendChild(link);
+
+        function addImgPreload(src) {
+            var parent = document.getElementsByTagName('body')[0];
+            var img = document.createElement('img');
+            link.src = src;
+            link.style.display = 'none';
+            parent.appendChild(link);
+        }
+
+        addImgPreload('/icon/Delete.svg');
+        addImgPreload('/icon/Plus.svg');
+        addImgPreload('/icon/ArrowDown.svg');
+    }
+</script>
 </body>
 </html>

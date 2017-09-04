@@ -1,3 +1,13 @@
+body{
+  font-weight: 400;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  font-size: 12.5px;
+  line-height: 15px;
+  box-sizing: border-box;
+  font-family: -apple-system,BlinkMacSystemFont,Roboto,Open Sans,Helvetica Neue,sans-serif;
+}
+
 .showcase{
-  max-width: 375px;
+  max-width: 379px;
 }
