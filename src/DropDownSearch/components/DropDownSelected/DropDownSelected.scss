@@ -1,0 +1,15 @@
+@import "util/styleguide";
+
+.drop-down-search {
+  &__selected-item-remove {
+    border: none;
+    float: right;
+    width: 17px;
+    height: 17px;
+    margin-left: 5px;
+    cursor: pointer;
+    outline: none;
+    background: none;
+    padding: 2px;
+  }
+}

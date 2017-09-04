@@ -12,6 +12,8 @@ const port = (yargs.port || 8080) + (yargs.$0 && yargs.$0.indexOf('webpack-dev-s
 app
     .use('/', express.static('dist'))
     .use('/dist', express.static('dist'))
+    .use('/img', express.static('src/Icon/img'))
+    .use('/icon', express.static('src/Icon'))
     .get('/', (req, res) => {
         res.sendFile(path.join(`${__dirname}/../../dist/index.html`));
     })

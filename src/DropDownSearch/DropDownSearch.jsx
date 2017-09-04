@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import SearchCache from 'SearchCache/SearchCache';
 import DropDown from 'DropDown/DropDown';
 import './DropDownSearch.scss';
-import DropDownAutocomplete from './components/DropDownAutocomplete';
-import DropDownSelected from './components/DropDownSelected';
-import DropDownSelect from './components/DropDownSelect';
-import dropDownList from './components/DropDownList';
+import DropDownAutocomplete from './components/DropDownAutocomplete/DropDownAutocomplete';
+import DropDownSelected from './components/DropDownSelected/DropDownSelected';
+import DropDownSelect from './components/DropDownSelect/DropDownSelect';
+import dropDownList from './components/DropDownList/DropDownList';
 
 /**
  * dropdown model-view component, only state container, no layout containing
@@ -160,9 +160,11 @@ export default class ReactDropdownSearch extends Component {
         const header = this.props.autocomplete ?
             (<DropDownAutocomplete
                 className="drop-down-search__header-content"
+                isSelected={!!this.state.selectedItems.length}
+                toggleList={() => { this.toggleList(); }}
                 searchString={this.state.searchString}
                 handleSearch={(str) => { this.handleSearch(str); }}
-                isSelected={!!this.state.selectedItems.length}
+                focused={!this.state.selectedItems.length || this.state.displayList}
             >
                 {selectedItems}
             </DropDownAutocomplete>) :

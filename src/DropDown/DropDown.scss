@@ -8,15 +8,16 @@
   overflow: visible;
   box-sizing: border-box;
   overflow: visible;
+  padding-right: 22px;
 
   &__trigger {
     width: 27px;
     height: 27px;
-    padding: 0;
+    padding: 4px 0 0;
     margin: 0;
     border: 0;
     cursor: pointer;
-    background: url(../img/arrow-down.svg) no-repeat center;
+    background-color: transparent;
     background-size: 50%;
     position: absolute;
     right: 0;
@@ -37,8 +38,9 @@
     border-width: 1px;
     border-radius: 0 0 1px 1px;
     box-shadow: 0 1px 3px $shadowColor;
-    position: absolute!important; //надо разбираться где в плагине настроить
     margin-left: -1px;
+    //плагин для скроллинга - временное решение
+    position: absolute!important; // но он он использует inline-стили, поэтому приходится так
   }
 
   &__scroll-vertical {
@@ -47,10 +49,12 @@
     height: calc(100% - 8px);
     margin-top: 4px;
     visibility: visible;
-    right: 3px;
+    right: 0;
     top: 0;
+    transition: width 150ms linear;
+    padding-right: 3px;
     &:hover{
-      width: 8px;
+      width: 8px !important; //продолжнается борьба с плагином
     }
   }
 
@@ -65,6 +69,7 @@
     transform: translateY(0px);
     background: $scrollThumbColor;
     border-radius: 3px;
+    transition: background-color 200ms linear;
   }
 
   &__scroll-vertical:hover &__scroll-thumb-vertical {

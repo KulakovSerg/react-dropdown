@@ -5,16 +5,16 @@
     font-size: 13px;
     outline: none;
     box-shadow: none;
-    padding: 5px 6px;
-    margin: 0;
     border: 0;
     width: 100%;
     box-sizing: border-box;
     line-height: 17px;
+    padding: 4px 7px 5px 5px;
   }
 
   &__input_inline{
     display: inline-block;
+    vertical-align: middle;
     width: auto;
   }
 }

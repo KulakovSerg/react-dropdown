@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import i18n from 'util/i18n';
 import classnames from 'classnames';
 import './DropDownAutocomplete.scss';
+import DropDownSelectedAdd from '../DropDownSelectedAdd/DropDownSelectedAdd';
 
 /**
  * dropdown header with autocomplete function
@@ -14,6 +15,7 @@ export default class ReactDropdownAutocomplete extends Component {
         className: null,
         children: null,
         isSelected: null,
+        focused: null,
     };
     static propTypes = {
         /**
@@ -36,6 +38,14 @@ export default class ReactDropdownAutocomplete extends Component {
          * if there are selected items input style should be changed
          */
         isSelected: PropTypes.bool,
+        /**
+         * to display input
+         */
+        focused: PropTypes.bool,
+        /**
+         * toggleList
+         */
+        toggleList: PropTypes.func,
     };
     focusInput() {
         if (this.inputNode) {
@@ -54,19 +64,26 @@ export default class ReactDropdownAutocomplete extends Component {
                 )}
             >
                 {this.props.children}
-                <input
-                    placeholder={i18n('Введите имя друга')}
-                    className={classnames(
-                        'drop-down-autocomplete__input',
-                        this.props.isSelected && 'drop-down-autocomplete__input_inline',
-                    )}
-                    type="text"
-                    name="search"
-                    value={this.props.searchString}
-                    onChange={(event) => { this.props.handleSearch(event.target.value); }}
-                    autoComplete="off"
-                    ref={(node) => { this.inputNode = node; }}
-                />
+                {this.props.focused ?
+                    <input
+                        placeholder={i18n('Введите имя друга')}
+                        className={classnames(
+                            'drop-down-autocomplete__input',
+                            this.props.isSelected && 'drop-down-autocomplete__input_inline',
+                        )}
+                        type="text"
+                        name="search"
+                        value={this.props.searchString}
+                        onChange={(event) => {
+                            this.props.handleSearch(event.target.value);
+                        }}
+                        autoComplete="off"
+                        ref={(node) => {
+                            this.inputNode = node;
+                        }}
+                    />
+                    : <DropDownSelectedAdd onClick={this.props.toggleList} />
+                }
             </div>
         );
     }

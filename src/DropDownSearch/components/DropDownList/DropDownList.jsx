@@ -1,6 +1,6 @@
 import React from 'react';
 import i18n from 'util/i18n';
-
+import './DropDownList.scss';
 
 function prepareText(props, text, id) {
     const searchString = props.searchString.toLowerCase();

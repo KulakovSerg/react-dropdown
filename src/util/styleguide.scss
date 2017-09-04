@@ -1,12 +1,37 @@
 $itemHeight: 40px;
 $borderColor: #d3d9de;
 $borderColor2: #c9d0d6;
-$buttonBg: #6285af;
+$borderColorLight: #e7e8ec;
+$bgMain: #6285af;
+$bgLighter: #dae2ea;
 $defaultBg: #fff;
 $lightText: #fff;
+$lighterTextColor: #55677d;
 $shadowColor: rgba(0,0,0,.1);
 $scrollThumbColor: #dae1e8;
 $scrollColor: #bec8d3;
 $bgHoverColor: #f0f2f5;
 $textGighlightColor: #e7edf2;
 $subTextColor: #656565;
+
+$iconFill: #7293B6;
+$iconFillHover: #ffffff;
+$iconFillLightHover: #577CA1;
+
+@mixin fontMain() {
+  line-height: 14px;
+  color: #4e5966;
+}
+
+@mixin fontTitle() {
+  font-weight: 700;
+  color: #42648b;
+  font-size: 12.5px;
+  line-height: 15px;
+}
+
+@mixin fontOverflow() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

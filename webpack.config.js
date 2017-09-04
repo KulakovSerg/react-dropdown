@@ -103,7 +103,7 @@ module.exports = {
                             spriteFilename: '/sprite.svg',
                         },
                     },
-                    'svg-fill-loader',
+                    // 'svg-fill-loader',
                     'svgo-loader',
                 ],
             },
