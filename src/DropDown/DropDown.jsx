@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Scroll from 'react-custom-scrollbars';
-import iconArrowDown from 'Icon/Img/ArrowDown.svg';
+import iconArrowDown from 'Icon/Img/arrow_down.svg';
 import 'Icon/Icon.scss';
 import './DropDown.scss';
 

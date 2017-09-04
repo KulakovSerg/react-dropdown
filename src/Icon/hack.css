@@ -1,12 +1,12 @@
 .icon.icon_img_arrow-down{
-    background: url('/img/ArrowDown.svg') no-repeat center;
+    background: url('/img/arrow_down.svg') no-repeat center;
 }
 .drop-down__trigger-icon.icon.icon_img_arrow-down{
     background-position: center -1px;
 }
 .icon.icon_img_delete{
-    background: url('/img/Delete.svg') no-repeat center;
+    background: url('/img/delete.svg') no-repeat center;
 }
 .icon.icon_img_plus{
-    background: url('/img/Plus.svg') no-repeat center;
+    background: url('/img/plus.svg') no-repeat center;
 }

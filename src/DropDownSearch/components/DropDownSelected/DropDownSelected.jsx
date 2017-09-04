@@ -2,7 +2,7 @@ import React from 'react';
 import './DropDownSelected.scss';
 import 'Button/Button.scss';
 import 'Icon/Icon.scss';
-import iconDelete from 'Icon/Img/Delete.svg';
+import iconDelete from 'Icon/Img/delete.svg';
 
 /**
  * selected items array
